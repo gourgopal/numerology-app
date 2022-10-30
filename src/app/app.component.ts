@@ -111,6 +111,7 @@ export class AppComponent {
     console.log("master numbers = " + this.getMasterNumbers());
     console.log("karmic number = " + this.getKuaNumber());
     console.log("lu sho numbers = " + this.generatedNos);
+    console.log("missing numbers = " + this.getMissingNumbers());
 
     // let p: Person = {
     //   Psychic: 1,
@@ -277,5 +278,17 @@ export class AppComponent {
     numbers.push(KuaNumber);
 
     return numbers;
+  }
+
+  getMissingNumbers(): number[] {
+    let missingNos: number[] = [];
+
+    for (let i = 1; i <= 9; ++i) {
+      if (this.generatedNos.includes(i) === false) {
+        missingNos.push(i);
+      }
+    }
+
+    return missingNos;
   }
 }
