@@ -56,6 +56,11 @@ interface Person {
   Repeating: number;
 }
 
+interface NameNumber {
+  Name: string;
+  Number: number;
+}
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -112,6 +117,12 @@ export class AppComponent {
     console.log("karmic number = " + this.getKuaNumber());
     console.log("lu sho numbers = " + this.generatedNos);
     console.log("missing numbers = " + this.getMissingNumbers());
+    console.log("First Impression Number = " + this.getPersonalityNumber());
+    console.log("Soul Urge Number = ");
+    let hdNum = this.getHeartDesireNumber();
+    hdNum.forEach(element => {
+      console.log(element);
+    });
 
     // let p: Person = {
     //   Psychic: 1,
@@ -290,5 +301,101 @@ export class AppComponent {
     }
 
     return missingNos;
+  }
+
+  getPersonalityNumber(): number {
+    let sum: number = 0;
+    for (let alphabet of this.name.toLowerCase()) {
+      if (!this.isVowel(alphabet)) {
+        sum += this.getLetterMap(alphabet);
+      }
+    }
+    return this.getSingleNumber(sum);
+  }
+
+  getHeartDesireNumber(): NameNumber[] {
+    let hdNum: NameNumber[] = [];
+    let sumOfSum: number = 0;
+    this.name.toLowerCase().split(' ').forEach(element => {
+      let sum: number = 0;
+      for (let i = 0; i < element.length; ++i) {
+        if (i === 0 && element[i] === 'y') {
+          continue;
+        }
+        if (this.isVowel(element[i])) {
+          sum += this.getLetterMap(element[i]);
+        }
+      }
+      sumOfSum += sum;
+      hdNum.push({ Name: element, Number: this.getSingleNumber(sum) });
+    });
+    hdNum.push({ Name: this.name, Number: this.getSingleNumber(sumOfSum) });
+    return hdNum;
+  }
+
+  isVowel(letter: string): boolean {
+    return ['a', 'e', 'i', 'o', 'u'].indexOf(letter.toLowerCase()) !== -1;
+  }
+
+  getLetterMap(ch: string): number {
+    switch (ch) {
+      case 'a': return this.letterMap.a;
+      case 'b': return this.letterMap.b;
+      case 'c': return this.letterMap.c;
+      case 'd': return this.letterMap.d;
+      case 'e': return this.letterMap.e;
+      case 'f': return this.letterMap.f;
+      case 'g': return this.letterMap.g;
+      case 'h': return this.letterMap.h;
+      case 'i': return this.letterMap.i;
+      case 'j': return this.letterMap.j;
+      case 'k': return this.letterMap.k;
+      case 'l': return this.letterMap.l;
+      case 'm': return this.letterMap.m;
+      case 'n': return this.letterMap.n;
+      case 'o': return this.letterMap.o;
+      case 'p': return this.letterMap.p;
+      case 'q': return this.letterMap.q;
+      case 'r': return this.letterMap.r;
+      case 's': return this.letterMap.s;
+      case 't': return this.letterMap.t;
+      case 'u': return this.letterMap.u;
+      case 'v': return this.letterMap.v;
+      case 'w': return this.letterMap.w;
+      case 'x': return this.letterMap.x;
+      case 'y': return this.letterMap.y;
+      case 'z': return this.letterMap.z;
+      default:
+        return 0;
+    }
+  }
+
+  letterMap = {
+    'a': 1,
+    'b': 2,
+    'c': 3,
+    'd': 4,
+    'e': 5,
+    'f': 8,
+    'g': 3,
+    'h': 5,
+    'i': 1,
+    'j': 1,
+    'k': 2,
+    'l': 3,
+    'm': 4,
+    'n': 5,
+    'o': 7,
+    'p': 8,
+    'q': 1,
+    'r': 2,
+    's': 3,
+    't': 4,
+    'u': 6,
+    'v': 6,
+    'w': 6,
+    'x': 5,
+    'y': 1,
+    'z': 7
   }
 }
