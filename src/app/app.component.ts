@@ -12,14 +12,29 @@ enum Gender {
 }
 
 enum Planes {
-  Golden,
-  Silver,
-  Mind,
-  Heart,
-  Practical,
-  Action,
-  Will,
-  Thought
+  Golden = "Golden",
+  Silver = "Silver",
+  Mind = "Mind",
+  Heart = "Heart",
+  Practical = "Practical",
+  Action = "Action",
+  Will = "Will",
+  Thought = "Thought"
+}
+
+type EnumDictionary<T extends Planes, U> = {
+  [K in T]: U;
+};
+
+const PlanesDefinition: EnumDictionary<Planes, number[]> = {
+  [Planes.Golden]: [4, 5, 6],
+  [Planes.Silver]: [2, 5, 8],
+  [Planes.Mind]: [4, 9, 2],
+  [Planes.Heart]: [3, 5, 7],
+  [Planes.Practical]: [8, 1, 6],
+  [Planes.Thought]: [4, 3, 8],
+  [Planes.Will]: [9, 5, 1],
+  [Planes.Action]: [2, 7, 6]
 }
 
 enum SmallPlane {
@@ -69,11 +84,11 @@ interface NameNumber {
 export class AppComponent {
   constructor(private _snackBar: MatSnackBar) { }
   title: string = 'numerology-app';
-  name: string = '';
-  selectedGender: Gender | undefined;
-  dob: Date = new Date();
+  name: string = 'Goura Gopal Dalai';
+  selectedGender: Gender | undefined = Gender.Male;
+  dob: Date = new Date('12/5/1996');
   person: Person | undefined;
-  generatedNos: number[] = [];
+  generatedNumbers: number[] = [];
   ones: string = '';
   twos: string = '';
   threes: string = '';
@@ -95,7 +110,7 @@ export class AppComponent {
 
   calculate() {
     this._snackBar.dismiss();
-    this.generatedNos = [];
+    this.generatedNumbers = [];
     if (this.dob === undefined) {
       this.openSnackBar("Please enter a valid birthday");
     } else if (this.name.trim().length < 1) {
@@ -108,21 +123,25 @@ export class AppComponent {
     const destiny = this.getDestinyNumber();
     const kNo = this.getKuaNumber();
     const masters = this.getMasterNumbers();
-    this.generatedNos = this.generateNumbers(psychic, destiny, kNo);
+    this.generatedNumbers = this.generateNumbers(psychic, destiny, kNo);
     this.initLuShoGrid();
 
+    const missingNumbers = this.getMissingNumbers();
     console.log("psychic number = " + this.getPsychic());
     console.log("destiny number = " + this.getDestinyNumber());
     console.log("master numbers = " + this.getMasterNumbers());
     console.log("karmic number = " + this.getKuaNumber());
-    console.log("lu sho numbers = " + this.generatedNos);
-    console.log("missing numbers = " + this.getMissingNumbers());
+    console.log("lu sho numbers = " + this.generatedNumbers);
+    console.log("missing numbers = " + missingNumbers);
+    console.log("complementary numbers = " + this.getComplementaryNumbers(missingNumbers));
     console.log("First Impression Number = " + this.getPersonalityNumber());
     console.log("Soul Urge Number = ");
     let hdNum = this.getHeartDesireNumber();
     hdNum.forEach(element => {
       console.log(element);
     });
+    console.log("karmic debt number = " + this.getKarmicDebtNumber());
+    console.log("Planes = " + this.getPlanes());
 
     // let p: Person = {
     //   Psychic: 1,
@@ -141,7 +160,7 @@ export class AppComponent {
     this.sevens = '';
     this.eights = '';
     this.nines = '';
-    this.generatedNos.forEach(n => {
+    this.generatedNumbers.forEach(n => {
       switch (n) {
         case 1:
           this.ones += n;
@@ -224,7 +243,6 @@ export class AppComponent {
     }
 
     console.log("Destiny* = " + total)
-
     return masterNumber;
   }
 
@@ -295,7 +313,7 @@ export class AppComponent {
     let missingNos: number[] = [];
 
     for (let i = 1; i <= 9; ++i) {
-      if (this.generatedNos.includes(i) === false) {
+      if (this.generatedNumbers.includes(i) === false) {
         missingNos.push(i);
       }
     }
@@ -405,5 +423,75 @@ export class AppComponent {
     'x': 5,
     'y': 1,
     'z': 7
+  }
+
+  getComplementaryNumbers(missingNumbers: number[]): number[] {
+    let complementaryNumbers: number[] = [];
+
+    missingNumbers.forEach(element => {
+      complementaryNumbers
+        .push(...this.getComplementaryForMissing(element));
+      //😲 this is ECMAScript 6 spread syntax (optimized way of merging two arrays)
+    });
+
+    return complementaryNumbers;
+  }
+
+  getComplementaryForMissing(missingNumber: number): number[] {
+    switch (missingNumber) {
+      case 1:
+        return [9];
+      case 2:
+        return [5, 7];
+      case 3:
+        return [5, 7];
+      case 4:
+        return [8];
+      case 5:
+        return [];
+      case 6:
+        return [5];
+      case 7:
+        return [3];
+      case 8:
+        return [5, 4];
+      case 9:
+        return [1];
+      default:
+        return [];
+    }
+  }
+
+  hasKarmicDebtNumber(): boolean {
+    switch (this.dob.getDate()) {
+      case 10:
+      case 13:
+      case 14:
+      case 16:
+      case 19:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  getKarmicDebtNumber(): number | undefined {
+    if (this.hasKarmicDebtNumber()) {
+      return this.dob.getDate();
+    }
+    return undefined;
+  }
+  
+  checker = (arr: number[], target: number[]) => target.every(v => arr.includes(v));
+  getPlanes(): Planes[] {
+    let planes: Planes[] = [];
+
+    for (let item in Planes) {
+      const plane = Planes[item as Planes];
+      if (this.checker(this.generatedNumbers, PlanesDefinition[plane])) {
+        planes.push(plane);
+      }
+    }
+    return planes;
   }
 }
