@@ -315,22 +315,30 @@ export class AppComponent {
 
   getHeartDesireNumber(): NameNumber[] {
     let hdNum: NameNumber[] = [];
-    let sumOfSum: number = 0;
-    this.name.toLowerCase().split(' ').forEach(element => {
-      let sum: number = 0;
-      for (let i = 0; i < element.length; ++i) {
-        if (i === 0 && element[i] === 'y') {
-          continue;
-        }
-        if (this.isVowel(element[i])) {
-          sum += this.getLetterMap(element[i]);
-        }
-      }
-      sumOfSum += sum;
-      hdNum.push({ Name: element, Number: this.getSingleNumber(sum) });
-    });
-    hdNum.push({ Name: this.name, Number: this.getSingleNumber(sumOfSum) });
+    const fullName: string[] = this.name.split(' ');
+    const firstName = fullName[0];
+    const lastName = fullName[fullName.length - 1];
+    let firstAndMiddleName = fullName.slice(0, -1).join(' ');
+
+    hdNum.push({ Name: this.name, Number: this.getSingleNumber(this.getVowelNumber(this.name.toLowerCase())) });
+    hdNum.push({ Name: firstName, Number: this.getSingleNumber(this.getVowelNumber(firstName.toLowerCase())) });
+    hdNum.push({ Name: firstAndMiddleName, Number: this.getSingleNumber(this.getVowelNumber(firstAndMiddleName.toLowerCase())) });
+    hdNum.push({ Name: lastName, Number: this.getSingleNumber(this.getVowelNumber(lastName.toLowerCase())) });
+
     return hdNum;
+  }
+
+  getVowelNumber(name: string): number {
+    let sum: number = 0;
+    for (let j = 0; j < name.length; ++j) {
+      if (j === 0 && name[j] === 'y') {
+        continue;
+      }
+      if (this.isVowel(name[j])) {
+        sum += this.getLetterMap(name[j]);
+      }
+    }
+    return this.getSingleNumber(sum);
   }
 
   isVowel(letter: string): boolean {
