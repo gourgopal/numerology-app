@@ -66,11 +66,23 @@ const MissingPlaneDefinition: EnumDictionary<MissingPlane, number[]> = {
 }
 
 enum EarthElement {
-  Fire,
-  Water,
-  Gold,
-  Earth,
-  Wood
+  Fire = "Fire",
+  Water = "Water",
+  Metal = "Metal",
+  Earth = "Earth",
+  Wood = "Wood"
+}
+
+const EarthElementDefinition: { [id: number]: EarthElement; } = {
+  1: EarthElement.Water,
+  2: EarthElement.Earth,
+  3: EarthElement.Wood,
+  4: EarthElement.Wood,
+  5: EarthElement.Earth,
+  6: EarthElement.Metal,
+  7: EarthElement.Metal,
+  8: EarthElement.Earth,
+  9: EarthElement.Fire
 }
 
 interface Person {
@@ -147,6 +159,7 @@ export class AppComponent {
   sevens: string = '';
   eights: string = '';
   nines: string = '';
+  EarthElements = EarthElementDefinition;
 
   genders: DropDown[] = [
     { value: Gender.Male, displayName: Gender[Gender.Male] },
@@ -196,6 +209,7 @@ export class AppComponent {
     console.log("Friendly Psychic " + psychic + " and Destiny " + destiny + " = " + this.getRelation(psychic, destiny));
     console.log("Friendly Destiny " + destiny + " and Psychic " + psychic + " = " + this.getRelation(destiny, psychic));
     console.log("Repeating Numbers = " + this.getRepeatingNumbers());
+    console.log("Earth Elements = " + this.getEarthElements());
   }
 
   initLuShoGrid() {
@@ -572,16 +586,16 @@ export class AppComponent {
 
     //num1 to num2
     let relationData = RelationDefinition.filter(e => e.Number === n1)[0];
-    if(relationData.Friends.includes(n2)) {
+    if (relationData.Friends.includes(n2)) {
       relation.push(RelationType.Friend as RelationType);
     }
-    if(relationData.Enemies?.includes(n2)) {
+    if (relationData.Enemies?.includes(n2)) {
       relation.push(RelationType.Enemy as RelationType);
     }
-    if(relationData.Neutrals.includes(n2)) {
+    if (relationData.Neutrals.includes(n2)) {
       relation.push(RelationType.Neutral as RelationType);
     }
-    if(relationData.Temporary_Friend?.includes(n2)) {
+    if (relationData.Temporary_Friend?.includes(n2)) {
       relation.push(RelationType.Temporary_Friend as RelationType);
     }
 
@@ -600,5 +614,13 @@ export class AppComponent {
       }
     }
     return repeatingNumbers;
+  }
+
+  getEarthElements(): EarthElement[] {
+    let earthElement: EarthElement[] = [];
+    this.generatedNumbers.filter((v, i, a) => a.indexOf(v) === i).forEach(n => {
+      earthElement.push(EarthElementDefinition[n]);
+    });
+    return earthElement;
   }
 }
