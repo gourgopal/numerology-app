@@ -22,7 +22,7 @@ enum Planes {
   Thought = "Thought"
 }
 
-type EnumDictionary<T extends Planes, U> = {
+type EnumDictionary<T extends Planes | SmallPlane | MissingPlane, U> = {
   [K in T]: U;
 };
 
@@ -38,10 +38,31 @@ const PlanesDefinition: EnumDictionary<Planes, number[]> = {
 }
 
 enum SmallPlane {
-  OneThree,
-  ThreeNine,
-  NineSeven,
-  OneSeven
+  OneThree = "OneThree",
+  ThreeNine = "ThreeNine",
+  NineSeven = "NineSeven",
+  OneSeven = "OneSeven"
+}
+
+const SmallPlanesDefinition: EnumDictionary<SmallPlane, number[]> = {
+  [SmallPlane.OneThree]: [1, 3],
+  [SmallPlane.ThreeNine]: [3, 9],
+  [SmallPlane.NineSeven]: [9, 7],
+  [SmallPlane.OneSeven]: [1, 7]
+}
+
+enum MissingPlane {
+  Weakness = "Weakness",
+  Doubt = "Doubt",
+  Loneliness = "Loneliness",
+  Confusion = "Confusion"
+}
+
+const MissingPlaneDefinition: EnumDictionary<MissingPlane, number[]> = {
+  [MissingPlane.Doubt]: [4, 5, 6],
+  [MissingPlane.Weakness]: [2, 5, 8],
+  [MissingPlane.Loneliness]: [3, 5, 7],
+  [MissingPlane.Confusion]: [2, 7, 6]
 }
 
 enum EarthElement {
@@ -75,6 +96,34 @@ interface NameNumber {
   Name: string;
   Number: number;
 }
+
+//friendly psychic and destiny
+enum RelationType {
+  Friend = "Friend",
+  Enemy = "Enemy",
+  Neutral = "Neutral",
+  Temporary_Friend = "Temporary_Friend"
+}
+
+interface Relation {
+  Number: number;
+  Friends: number[];
+  Enemies?: number[];
+  Neutrals: number[];
+  Temporary_Friend?: number[];
+}
+
+const RelationDefinition: Relation[] = [
+  { Number: 1, Friends: [1, 2, 3, 5, 6, 9], Enemies: [8], Neutrals: [4, 7] },
+  { Number: 2, Friends: [1, 2, 3, 5], Enemies: [4, 8, 9], Neutrals: [6, 7] },
+  { Number: 3, Friends: [1, 2, 3, 5], Enemies: [6], Neutrals: [4, 7, 8, 9] },
+  { Number: 4, Friends: [1, 5, 6, 7], Enemies: [2, 4, 8, 9], Neutrals: [3], Temporary_Friend: [4, 8] },
+  { Number: 5, Friends: [1, 2, 3, 5, 6], Neutrals: [4, 7, 8, 9] },
+  { Number: 6, Friends: [1, 5, 6, 7], Enemies: [3], Neutrals: [2, 4, 8, 9] },
+  { Number: 7, Friends: [1, 3, 4, 5, 6], Neutrals: [2, 7, 8, 9] },
+  { Number: 8, Friends: [3, 4, 5, 6, 7, 8], Enemies: [1], Neutrals: [9], Temporary_Friend: [4, 8] },
+  { Number: 9, Friends: [1, 3, 5], Enemies: [4, 2], Neutrals: [6, 7, 8, 9] }
+]
 
 @Component({
   selector: 'app-root',
@@ -127,10 +176,10 @@ export class AppComponent {
     this.initLuShoGrid();
 
     const missingNumbers = this.getMissingNumbers();
-    console.log("psychic number = " + this.getPsychic());
-    console.log("destiny number = " + this.getDestinyNumber());
-    console.log("master numbers = " + this.getMasterNumbers());
-    console.log("karmic number = " + this.getKuaNumber());
+    console.log("psychic number = " + psychic);
+    console.log("destiny number = " + destiny);
+    console.log("master numbers = " + masters);
+    console.log("karmic number = " + kNo);
     console.log("lu sho numbers = " + this.generatedNumbers);
     console.log("missing numbers = " + missingNumbers);
     console.log("complementary numbers = " + this.getComplementaryNumbers(missingNumbers));
@@ -142,12 +191,11 @@ export class AppComponent {
     });
     console.log("karmic debt number = " + this.getKarmicDebtNumber());
     console.log("Planes = " + this.getPlanes());
-
-    // let p: Person = {
-    //   Psychic: 1,
-    //   Destiny: 1
-    // }
-    // this.person = p;
+    console.log("Small Planes = " + this.getSmallPlanes());
+    console.log("Missing Planes = " + this.getMissingPlanes(missingNumbers));
+    console.log("Friendly Psychic " + psychic + " and Destiny " + destiny + " = " + this.getRelation(psychic, destiny));
+    console.log("Friendly Destiny " + destiny + " and Psychic " + psychic + " = " + this.getRelation(destiny, psychic));
+    console.log("Repeating Numbers = " + this.getRepeatingNumbers());
   }
 
   initLuShoGrid() {
@@ -431,7 +479,7 @@ export class AppComponent {
     missingNumbers.forEach(element => {
       complementaryNumbers
         .push(...this.getComplementaryForMissing(element));
-      //😲 this is ECMAScript 6 spread syntax (optimized way of merging two arrays)
+      //this is ECMAScript 6 spread syntax (optimized way of merging two arrays)
     });
 
     return complementaryNumbers;
@@ -481,7 +529,7 @@ export class AppComponent {
     }
     return undefined;
   }
-  
+
   checker = (arr: number[], target: number[]) => target.every(v => arr.includes(v));
   getPlanes(): Planes[] {
     let planes: Planes[] = [];
@@ -493,5 +541,64 @@ export class AppComponent {
       }
     }
     return planes;
+  }
+
+  getSmallPlanes(): SmallPlane[] {
+    let planes: SmallPlane[] = [];
+
+    for (let item in SmallPlane) {
+      const plane = SmallPlane[item as SmallPlane];
+      if (this.checker(this.generatedNumbers, SmallPlanesDefinition[plane])) {
+        planes.push(plane);
+      }
+    }
+    return planes;
+  }
+
+  getMissingPlanes(missingNumbers: number[]) {
+    let planes: MissingPlane[] = [];
+
+    for (let item in MissingPlane) {
+      const plane = MissingPlane[item as MissingPlane];
+      if (this.checker(missingNumbers, MissingPlaneDefinition[plane])) {
+        planes.push(plane);
+      }
+    }
+    return planes;
+  }
+
+  getRelation(n1: number, n2: number): RelationType[] {
+    let relation: RelationType[] = [];
+
+    //num1 to num2
+    let relationData = RelationDefinition.filter(e => e.Number === n1)[0];
+    if(relationData.Friends.includes(n2)) {
+      relation.push(RelationType.Friend as RelationType);
+    }
+    if(relationData.Enemies?.includes(n2)) {
+      relation.push(RelationType.Enemy as RelationType);
+    }
+    if(relationData.Neutrals.includes(n2)) {
+      relation.push(RelationType.Neutral as RelationType);
+    }
+    if(relationData.Temporary_Friend?.includes(n2)) {
+      relation.push(RelationType.Temporary_Friend as RelationType);
+    }
+
+    return relation;
+  }
+
+  getRepeatingNumbers(): number[] {
+    let repeatingNumbers: number[] = [];
+    for (let i = 1; i <= 9; ++i) {
+      let repeatingNumber: number = i;
+      for (let j = 1; j < this.generatedNumbers.filter(e => e === i).length; ++j) {
+        repeatingNumber += i * Math.pow(10, j);
+      }
+      if (repeatingNumber > 9) {
+        repeatingNumbers.push(repeatingNumber);
+      }
+    }
+    return repeatingNumbers;
   }
 }
