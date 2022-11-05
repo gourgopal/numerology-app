@@ -145,6 +145,7 @@ const RelationDefinition: Relation[] = [
 export class AppComponent {
   constructor(private _snackBar: MatSnackBar) { }
   title: string = 'numerology-app';
+
   name: string = 'Goura Gopal Dalai';
   selectedGender: Gender | undefined = Gender.Male;
   dob: Date = new Date('12/5/1996');
@@ -160,6 +161,9 @@ export class AppComponent {
   eights: string = '';
   nines: string = '';
   EarthElements = EarthElementDefinition;
+  personalityNumber: number = 0;
+  heartDesireNumber: NameNumber[] = [];
+  FullNameNumber: NameNumber[] = [];
 
   genders: DropDown[] = [
     { value: Gender.Male, displayName: Gender[Gender.Male] },
@@ -187,6 +191,7 @@ export class AppComponent {
     const masters = this.getMasterNumbers();
     this.generatedNumbers = this.generateNumbers(psychic, destiny, kNo);
     this.initLuShoGrid();
+    this.personalityNumber = this.getPersonalityNumber();
 
     const missingNumbers = this.getMissingNumbers();
     console.log("psychic number = " + psychic);
@@ -196,10 +201,15 @@ export class AppComponent {
     console.log("lu sho numbers = " + this.generatedNumbers);
     console.log("missing numbers = " + missingNumbers);
     console.log("complementary numbers = " + this.getComplementaryNumbers(missingNumbers));
-    console.log("First Impression Number = " + this.getPersonalityNumber());
+    console.log("First Impression Number = " + this.personalityNumber);
     console.log("Soul Urge Number = ");
-    let hdNum = this.getHeartDesireNumber();
-    hdNum.forEach(element => {
+    this.heartDesireNumber = this.getHeartDesireNumber();
+    this.heartDesireNumber.forEach(element => {
+      console.log(element);
+    });
+    console.log("FULL NAME");
+    this.FullNameNumber = this.getFullNameNumber(this.name);
+    this.FullNameNumber.forEach(element => {
       console.log(element);
     });
     console.log("karmic debt number = " + this.getKarmicDebtNumber());
@@ -402,10 +412,37 @@ export class AppComponent {
 
     hdNum.push({ Name: this.name, Number: this.getSingleNumber(this.getVowelNumber(this.name.toLowerCase())) });
     hdNum.push({ Name: firstName, Number: this.getSingleNumber(this.getVowelNumber(firstName.toLowerCase())) });
-    hdNum.push({ Name: firstAndMiddleName, Number: this.getSingleNumber(this.getVowelNumber(firstAndMiddleName.toLowerCase())) });
+    if (firstAndMiddleName !== firstName) {
+      hdNum.push({ Name: firstAndMiddleName, Number: this.getSingleNumber(this.getVowelNumber(firstAndMiddleName.toLowerCase())) });
+    }
     hdNum.push({ Name: lastName, Number: this.getSingleNumber(this.getVowelNumber(lastName.toLowerCase())) });
 
     return hdNum;
+  }
+
+  getFullNameNumber(name: string): NameNumber[] {
+    let hdNum: NameNumber[] = [];
+    const fullName: string[] = this.name.split(' ');
+    const firstName = fullName[0];
+    const lastName = fullName[fullName.length - 1];
+    let firstAndMiddleName = fullName.slice(0, -1).join(' ');
+
+    hdNum.push({ Name: this.name, Number: this.getNameNumberFull(this.name.toLowerCase()) });
+    hdNum.push({ Name: firstName, Number: this.getNameNumberFull(firstName.toLowerCase()) });
+    if (firstAndMiddleName !== firstName) {
+      hdNum.push({ Name: firstAndMiddleName, Number: this.getNameNumberFull(firstAndMiddleName.toLowerCase()) });
+    }
+    hdNum.push({ Name: lastName, Number: this.getNameNumberFull(lastName.toLowerCase()) });
+
+    return hdNum;
+  }
+
+  getNameNumberFull(name: string): number {
+    let sum: number = 0;
+    for (let j = 0; j < name.length; ++j) {
+      sum += this.getLetterMap(name[j]);
+    }
+    return sum;
   }
 
   getVowelNumber(name: string): number {

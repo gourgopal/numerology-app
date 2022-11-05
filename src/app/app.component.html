@@ -46,20 +46,68 @@
   <button mat-raised-button color="primary" (click)="calculate()">Get Report</button>
 </p>
 
-<p>{{name}}</p>
-<p>{{dob}}</p>
-<p>{{selectedGender}}</p>
+<div *ngIf="generatedNumbers.length > 0">
+  <p class="body-2">{{name}}</p>
+  <p class="body-1">{{dob}}</p>
+  <p>{{selectedGender}}</p>
+</div>
 
-<p>
+<p *ngIf="generatedNumbers.length > 0">
   <mat-grid-list cols="3" rowHeight="50px">
-    <mat-grid-tile><p matTooltip="{{EarthElements[4]}}">{{fours}}</p></mat-grid-tile>
-    <mat-grid-tile><p matTooltip="{{EarthElements[9]}}">{{nines}}</p></mat-grid-tile>
-    <mat-grid-tile><p matTooltip="{{EarthElements[2]}}">{{twos}}</p></mat-grid-tile>
-    <mat-grid-tile><p matTooltip="{{EarthElements[3]}}">{{threes}}</p></mat-grid-tile>
-    <mat-grid-tile><p matTooltip="{{EarthElements[5]}}">{{fives}}</p></mat-grid-tile>
-    <mat-grid-tile><p matTooltip="{{EarthElements[7]}}">{{sevens}}</p></mat-grid-tile>
-    <mat-grid-tile><p matTooltip="{{EarthElements[8]}}">{{eights}}</p></mat-grid-tile>
-    <mat-grid-tile><p matTooltip="{{EarthElements[1]}}">{{ones}}</p></mat-grid-tile>
-    <mat-grid-tile><p matTooltip="{{EarthElements[6]}}">{{sixes}}</p></mat-grid-tile>
+    <mat-grid-tile>
+      <div matTooltip="{{EarthElements[4]}}">{{fours}}</div>
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <div matTooltip="{{EarthElements[9]}}">{{nines}}</div>
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <div matTooltip="{{EarthElements[2]}}">{{twos}}</div>
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <div matTooltip="{{EarthElements[3]}}">{{threes}}</div>
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <div matTooltip="{{EarthElements[5]}}">{{fives}}</div>
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <div matTooltip="{{EarthElements[7]}}">{{sevens}}</div>
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <div matTooltip="{{EarthElements[8]}}">{{eights}}</div>
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <div matTooltip="{{EarthElements[1]}}">{{ones}}</div>
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <div matTooltip="{{EarthElements[6]}}">{{sixes}}</div>
+    </mat-grid-tile>
   </mat-grid-list>
 </p>
+
+<div *ngIf="generatedNumbers.length > 0">
+  <h3 class="subheading-2">Date of Birth and Name Analysis</h3>
+  <mat-accordion>
+    <mat-expansion-panel hideToggle>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Personality traits Analysis on '{{name}}'
+        </mat-panel-title>
+        <mat-panel-description>
+          Hidden traits from your name
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+      <p>Personality Number: {{personalityNumber}}</p>
+    </mat-expansion-panel>
+    <mat-expansion-panel *ngFor="let h of heartDesireNumber">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Secret desires Analysis on '{{h.Name}}'
+        </mat-panel-title>
+        <mat-panel-description>
+          Hidden traits from your name
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+      <p class="caption">Secret Desire Number: {{h.Number}}</p>
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>
