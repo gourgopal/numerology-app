@@ -1,0 +1,81 @@
+{
+  "configVersion": 1,
+  "timestamp": 1667762068817,
+  "index": "numerology-app/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "numerology-app/favicon.ico",
+        "numerology-app/index.html",
+        "numerology-app/main.eb56f71255daaf46.js",
+        "numerology-app/manifest.webmanifest",
+        "numerology-app/polyfills.381597e0a527e507.js",
+        "numerology-app/runtime.cf804cab16c9e5a5.js",
+        "numerology-app/styles.0b06a98690ff3856.css"
+      ],
+      "patterns": []
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "numerology-app/assets/icons/icon-128x128.png",
+        "numerology-app/assets/icons/icon-144x144.png",
+        "numerology-app/assets/icons/icon-152x152.png",
+        "numerology-app/assets/icons/icon-192x192.png",
+        "numerology-app/assets/icons/icon-384x384.png",
+        "numerology-app/assets/icons/icon-512x512.png",
+        "numerology-app/assets/icons/icon-72x72.png",
+        "numerology-app/assets/icons/icon-96x96.png"
+      ],
+      "patterns": []
+    }
+  ],
+  "dataGroups": [],
+  "hashTable": {
+    "numerology-app/assets/icons/icon-128x128.png": "dae3b6ed49bdaf4327b92531d4b5b4a5d30c7532",
+    "numerology-app/assets/icons/icon-144x144.png": "b0bd89982e08f9bd2b642928f5391915b74799a7",
+    "numerology-app/assets/icons/icon-152x152.png": "7479a9477815dfd9668d60f8b3b2fba709b91310",
+    "numerology-app/assets/icons/icon-192x192.png": "1abd80d431a237a853ce38147d8c63752f10933b",
+    "numerology-app/assets/icons/icon-384x384.png": "329749cd6393768d3131ed6304c136b1ca05f2fd",
+    "numerology-app/assets/icons/icon-512x512.png": "559d9c4318b45a1f2b10596bbb4c960fe521dbcc",
+    "numerology-app/assets/icons/icon-72x72.png": "c457e56089a36952cd67156f9996bc4ce54a5ed9",
+    "numerology-app/assets/icons/icon-96x96.png": "3914125a4b445bf111c5627875fc190f560daa41",
+    "numerology-app/favicon.ico": "22f6a4a3bcaafafb0254e0f2fa4ceb89e505e8b2",
+    "numerology-app/index.html": "62c750f2a5299b459718681efddea738fa03ed55",
+    "numerology-app/main.eb56f71255daaf46.js": "6131ff64764efa8a7dcc54fff70110ba7bff23e1",
+    "numerology-app/manifest.webmanifest": "a886a57e8e94cb691089890c764dfa8c8c354a6d",
+    "numerology-app/polyfills.381597e0a527e507.js": "d11e1e8e721b49dcbfae4ab9dc58a998729b7938",
+    "numerology-app/runtime.cf804cab16c9e5a5.js": "e6baf45aaff0cde47df5d0851f3d6552ecaea661",
+    "numerology-app/styles.0b06a98690ff3856.css": "33e91e6d587cc0426a508daf586d7251cc4270c3"
+  },
+  "navigationUrls": [
+    {
+      "positive": true,
+      "regex": "^\\/.*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*\\.[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*\\/.*$"
+    }
+  ],
+  "navigationRequestStrategy": "performance"
+}
