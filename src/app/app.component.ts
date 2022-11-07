@@ -354,10 +354,10 @@ export class AppComponent {
 
     let total = date + month + yearSum;
     while (total > 9) {
-      total = this.getSum(total);
       if (this.isMasterNumber(total)) {
         masterNumber.push(total);
       }
+      total = this.getSum(total);
     }
 
     console.log("Destiny* = " + total)
