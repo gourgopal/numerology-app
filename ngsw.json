@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1667853720773,
+  "timestamp": 1667854874840,
   "index": "https://gourgopal.github.io/numerology-app/index.html",
   "assetGroups": [
     {
@@ -13,7 +13,7 @@
       "urls": [
         "https://gourgopal.github.io/numerology-app/favicon.ico",
         "https://gourgopal.github.io/numerology-app/index.html",
-        "https://gourgopal.github.io/numerology-app/main.17697772ccf024b7.js",
+        "https://gourgopal.github.io/numerology-app/main.c5aac6ebfe479517.js",
         "https://gourgopal.github.io/numerology-app/manifest.webmanifest",
         "https://gourgopal.github.io/numerology-app/polyfills.381597e0a527e507.js",
         "https://gourgopal.github.io/numerology-app/runtime.cf804cab16c9e5a5.js",
@@ -52,8 +52,8 @@
     "https://gourgopal.github.io/numerology-app/assets/icons/icon-72x72.png": "c457e56089a36952cd67156f9996bc4ce54a5ed9",
     "https://gourgopal.github.io/numerology-app/assets/icons/icon-96x96.png": "3914125a4b445bf111c5627875fc190f560daa41",
     "https://gourgopal.github.io/numerology-app/favicon.ico": "22f6a4a3bcaafafb0254e0f2fa4ceb89e505e8b2",
-    "https://gourgopal.github.io/numerology-app/index.html": "637e0b2480de569fb2d41cbbc43ac8173fc84365",
-    "https://gourgopal.github.io/numerology-app/main.17697772ccf024b7.js": "c3ffb096546f7309f12adbef807c76afcab728c0",
+    "https://gourgopal.github.io/numerology-app/index.html": "9ee9d15d25c6b05cac6eb201df4ed32a946447f1",
+    "https://gourgopal.github.io/numerology-app/main.c5aac6ebfe479517.js": "0c46ef012053fbeeefeb972ca521b3a1fd0a31f8",
     "https://gourgopal.github.io/numerology-app/manifest.webmanifest": "a886a57e8e94cb691089890c764dfa8c8c354a6d",
     "https://gourgopal.github.io/numerology-app/polyfills.381597e0a527e507.js": "d11e1e8e721b49dcbfae4ab9dc58a998729b7938",
     "https://gourgopal.github.io/numerology-app/runtime.cf804cab16c9e5a5.js": "e6baf45aaff0cde47df5d0851f3d6552ecaea661",
