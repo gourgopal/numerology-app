@@ -1,8 +1,5 @@
 <mat-toolbar>
-  <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
-    <mat-icon>menu</mat-icon>
-  </button>
-  <span>My App</span>
+  <span>Numerology</span>
   <span class="example-spacer"></span>
   <button mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">
     <mat-icon>favorite</mat-icon>
@@ -15,7 +12,7 @@
 <p>
   <mat-form-field appearance="outline">
     <mat-label>Enter Full Name</mat-label>
-    <input matInput placeholder="Placeholder" [(ngModel)]="name">
+    <input matInput placeholder="Your Name" [(ngModel)]="name" (change)="reset()">
     <mat-icon matSuffix>person</mat-icon>
     <mat-hint>Official Name as on Certificate</mat-hint>
   </mat-form-field>
@@ -24,7 +21,7 @@
 <p>
   <mat-form-field appearance="fill">
     <mat-label>Actual birthday</mat-label>
-    <input matInput [matDatepicker]="picker" [(ngModel)]="dob">
+    <input matInput [matDatepicker]="picker" [(ngModel)]="dob" (dateChange)="reset()">
     <mat-hint>MM/DD/YYYY</mat-hint>
     <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
     <mat-datepicker #picker></mat-datepicker>
@@ -34,7 +31,7 @@
 <p>
   <mat-form-field appearance="fill">
     <mat-label>Choose Gender</mat-label>
-    <mat-select [(ngModel)]="selectedGender">
+    <mat-select [(ngModel)]="selectedGender" (valueChange)="reset()">
       <mat-option *ngFor="let gender of genders" [value]="gender.value">
         {{gender.displayName}}
       </mat-option>
@@ -46,68 +43,108 @@
   <button mat-raised-button color="primary" (click)="calculate()">Get Report</button>
 </p>
 
-<div *ngIf="generatedNumbers.length > 0">
-  <p class="body-2">{{name}}</p>
-  <p class="body-1">{{dob}}</p>
-  <p>{{selectedGender}}</p>
-</div>
+<mat-divider></mat-divider>
 
-<p *ngIf="generatedNumbers.length > 0">
-  <mat-grid-list cols="3" rowHeight="50px">
-    <mat-grid-tile>
-      <div matTooltip="{{EarthElements[4]}}">{{fours}}</div>
-    </mat-grid-tile>
-    <mat-grid-tile>
-      <div matTooltip="{{EarthElements[9]}}">{{nines}}</div>
-    </mat-grid-tile>
-    <mat-grid-tile>
-      <div matTooltip="{{EarthElements[2]}}">{{twos}}</div>
-    </mat-grid-tile>
-    <mat-grid-tile>
-      <div matTooltip="{{EarthElements[3]}}">{{threes}}</div>
-    </mat-grid-tile>
-    <mat-grid-tile>
-      <div matTooltip="{{EarthElements[5]}}">{{fives}}</div>
-    </mat-grid-tile>
-    <mat-grid-tile>
-      <div matTooltip="{{EarthElements[7]}}">{{sevens}}</div>
-    </mat-grid-tile>
-    <mat-grid-tile>
-      <div matTooltip="{{EarthElements[8]}}">{{eights}}</div>
-    </mat-grid-tile>
-    <mat-grid-tile>
-      <div matTooltip="{{EarthElements[1]}}">{{ones}}</div>
-    </mat-grid-tile>
-    <mat-grid-tile>
-      <div matTooltip="{{EarthElements[6]}}">{{sixes}}</div>
+<p *ngIf="person">
+  <mat-grid-list cols="3" rowHeight="10rem">
+    <mat-grid-tile *ngFor="let LuSho of person.LuShoGrid" [style.background]="LuSho.color">
+      <mat-grid-tile-header>
+        <h4 class="headline" matTooltip="Planet: {{LuSho.planet}}">{{LuSho.planet}}</h4>
+      </mat-grid-tile-header>
+      <span class="large-font">{{LuSho.number}}</span>
+      <mat-grid-tile-footer>
+        <h4 class="headline" matTooltip="Element: {{LuSho.earthElement}}">{{LuSho.earthElement}}</h4>
+      </mat-grid-tile-footer>
     </mat-grid-tile>
   </mat-grid-list>
 </p>
 
-<div *ngIf="generatedNumbers.length > 0">
-  <h3 class="subheading-2">Date of Birth and Name Analysis</h3>
-  <mat-accordion>
-    <mat-expansion-panel hideToggle>
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          Personality traits Analysis on '{{name}}'
-        </mat-panel-title>
-        <mat-panel-description>
-          Hidden traits from your name
-        </mat-panel-description>
-      </mat-expansion-panel-header>
-      <p>Personality Number: {{personalityNumber}}</p>
-    </mat-expansion-panel>
-    <mat-expansion-panel *ngFor="let h of heartDesireNumber">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          Secret desires Analysis on '{{h.Name}}'
-        </mat-panel-title>
-        <mat-panel-description>
-          Hidden traits from your name
-        </mat-panel-description>
-      </mat-expansion-panel-header>
-      <p class="caption">Secret Desire Number: {{h.Number}}</p>
-    </mat-expansion-panel>
-  </mat-accordion>
-</div>
+<mat-divider></mat-divider>
+
+<p *ngIf="person">
+  <mat-list>
+    <div mat-subheader>Birthday Analysis</div>
+    <mat-list-item>
+      <mat-icon mat-list-icon>emoji_people</mat-icon>
+      <div mat-line>Psychic</div>
+      <div mat-line> {{person.Psychic}} </div>
+    </mat-list-item>
+
+    <mat-list-item>
+      <mat-icon mat-list-icon>star_border_purple500</mat-icon>
+      <div mat-line>Destiny</div>
+      <div mat-line> {{person.Destiny}} </div>
+    </mat-list-item>
+
+    <mat-list-item>
+      <mat-icon mat-list-icon>directions</mat-icon>
+      <div mat-line>Kua number</div>
+      <div mat-line> {{person.karmic}} </div>
+    </mat-list-item>
+    
+    <mat-list-item>
+      <mat-icon mat-list-icon>compare_arrows</mat-icon>
+      <div mat-line>Psychic and Destiny Compatibility</div>
+      <div mat-line> {{person.IsFriendlyPsychicDestiny}} </div>
+    </mat-list-item>
+        
+    <mat-list-item>
+      <mat-icon mat-list-icon>compare</mat-icon>
+      <div mat-line>Destiny and Psychic Compatibility</div>
+      <div mat-line> {{person.IsFriendlyDestinyPsychic}} </div>
+    </mat-list-item>
+            
+    <mat-list-item>
+      <mat-icon mat-list-icon>local_fire_department</mat-icon>
+      <div mat-line>Elements</div>
+      <div mat-line> {{person.Elements}} </div>
+    </mat-list-item>
+            
+    <mat-list-item>
+      <mat-icon mat-list-icon>personal_injury</mat-icon>
+      <div mat-line>Karmic Debt</div>
+      <div mat-line *ngIf="person.KarmicDebt === undefined"> No karmic debts </div>
+      <div mat-line *ngIf="person.KarmicDebt"> {{person.KarmicDebt}} </div>
+    </mat-list-item>
+
+    <mat-list-item>
+      <mat-icon mat-list-icon>person_remove</mat-icon>
+      <div mat-line>Missing Numbers</div>
+      <div mat-line> {{person.Missing}} </div>
+    </mat-list-item>
+
+    <mat-list-item>
+      <mat-icon mat-list-icon>grid_off</mat-icon>
+      <div mat-line>Complete Planes</div>
+      <div mat-line> {{person.CompletePlanes}} </div>
+    </mat-list-item>
+
+    <mat-list-item>
+      <mat-icon mat-list-icon>auto_fix_high</mat-icon>
+      <div mat-line>Master Number</div>
+      <div mat-line *ngIf="person.MasterNumber.length === 0"> No master number </div>
+      <div mat-line *ngIf="person.MasterNumber"> {{person.MasterNumber}} </div>
+    </mat-list-item>
+    
+    <mat-divider></mat-divider>
+
+    <div mat-subheader>Name Analysis</div>
+    <mat-list-item>
+      <mat-icon mat-list-icon>person_outline</mat-icon>
+      <div mat-line>Personality (First Impression)</div>
+      <div mat-line><span *ngFor="let h of person.FirstImpression">{{h.Name}} ({{h.FullNumber}}:{{h.Number}}); </span></div>
+    </mat-list-item>
+
+    <mat-list-item>
+      <mat-icon mat-list-icon>person_search</mat-icon>
+      <div mat-line>Heart Desire (Soul Urge)</div>
+      <div mat-line><span *ngFor="let h of person.HeartDesire">{{h.Name}} ({{h.FullNumber}}:{{h.Number}}); </span></div>
+    </mat-list-item>
+
+    <mat-list-item>
+      <mat-icon mat-list-icon>person_pin</mat-icon>
+      <div mat-line>Name Expression</div>
+      <div mat-line><span *ngFor="let h of person.CompleteName">{{h.Name}} ({{h.FullNumber}}:{{h.Number}}); </span></div>
+    </mat-list-item>
+  </mat-list>
+</p>

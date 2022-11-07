@@ -11,5 +11,19 @@ mat-grid-tile {
 }
 
 .mat-grid-list {
-    width: 12rem;
+    min-width: 15rem;
+}
+
+.large-font {
+    font-size: xxx-large;
+}
+
+.mat-grid-tile-footer,
+.mat-grid-tile-header {
+    justify-content: center;
+    background-color: transparent !important;
+}
+
+.details-card {
+    max-width: 30rem;
 }

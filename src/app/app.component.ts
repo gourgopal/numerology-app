@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 interface DropDown {
@@ -66,11 +67,11 @@ const MissingPlaneDefinition: EnumDictionary<MissingPlane, number[]> = {
 }
 
 enum EarthElement {
-  Fire = "Fire",
-  Water = "Water",
-  Metal = "Metal",
-  Earth = "Earth",
-  Wood = "Wood"
+  Fire = "Fire 🔥",
+  Water = "Water 🌊",
+  Metal = "Metal 🪙",
+  Earth = "Earth 🌍",
+  Wood = "Wood 🪵"
 }
 
 const EarthElementDefinition: { [id: number]: EarthElement; } = {
@@ -85,27 +86,57 @@ const EarthElementDefinition: { [id: number]: EarthElement; } = {
   9: EarthElement.Fire
 }
 
+enum Color {
+  Red = '#ff5252',
+  Orange = '#ffab40',
+  LimeYellow = '#d4e157',
+  Green = '#69f0ae',
+  Blue = '#40c4ff',
+  DeepBlue = '#448aff',
+  Violet = '#e040fb',
+  UltraViolet = '#7c4dff',
+  Infrared = '#ff4081',
+}
+
+const LuShoGridColorDefinition: { [id: number]: Color; } = {
+  1: Color.Red,
+  2: Color.Orange,
+  3: Color.LimeYellow,
+  4: Color.Green,
+  5: Color.Blue,
+  6: Color.DeepBlue,
+  7: Color.Violet,
+  8: Color.UltraViolet,
+  9: Color.Infrared
+}
+
 interface Person {
+  Name: string;
+  Birthday: string;
+  Gender: string;
   Psychic: number;
   Destiny: number;
   karmic: number;
-  HeartDesire: number[];
-  FirstImpression: number;
+  HeartDesire: NameNumber[];
+  FirstImpression: NameNumber[];
+  CompleteName: NameNumber[];
   Missing: number[];
-  Complementary: number[];
-  CompletePlanes: Planes[];
-  PartialPlanes: Planes[];
-  SmallPlanes: SmallPlane[];
-  IsFriendlyPsychicDestiny: boolean;
-  Elements: EarthElement[];
-  LuShoGrid: number[][];
-  KarmicDebt: number;
-  MasterNumber: number;
-  Repeating: number;
+  Complementary?: number[];
+  CompletePlanes?: Planes[];
+  PartialPlanes?: Planes[];
+  SmallPlanes?: SmallPlane[];
+  IsFriendlyPsychicDestiny?: RelationType[];
+  IsFriendlyDestinyPsychic?: RelationType[];
+  Elements?: EarthElement[];
+  LuShoGrid: LuShoGrid[];
+  KarmicDebt?: number;
+  MasterNumber: number[];
+  Repeating: number[];
 }
 
 interface NameNumber {
   Name: string;
+  FullNumber: number;
   Number: number;
 }
 
@@ -117,12 +148,43 @@ enum RelationType {
   Temporary_Friend = "Temporary_Friend"
 }
 
+interface LuShoGrid {
+  number: string;
+  color: string;
+  planet: string;
+  earthElement: string;
+}
+
 interface Relation {
   Number: number;
   Friends: number[];
   Enemies?: number[];
   Neutrals: number[];
   Temporary_Friend?: number[];
+}
+
+enum Planet {
+  Sun = 'Sun | सूर्य',
+  Moon = 'Moon | चांद',
+  Jupiter = 'Jupiter | बृहस्पति',
+  Rahu = 'Rahu | राहु',
+  Mercury = 'Mercury | बुध',
+  Venus = 'Venus | शुक्र',
+  Ketu = 'Ketu | केतु',
+  Saturn = 'Saturn | शॉनी',
+  Mars = 'Mars | मंगल',
+}
+
+const PlanetDefinition: { [id: number]: Planet; } = {
+  1: Planet.Sun,
+  2: Planet.Moon,
+  3: Planet.Jupiter,
+  4: Planet.Rahu,
+  5: Planet.Mercury,
+  6: Planet.Venus,
+  7: Planet.Ketu,
+  8: Planet.Saturn,
+  9: Planet.Mars
 }
 
 const RelationDefinition: Relation[] = [
@@ -143,27 +205,29 @@ const RelationDefinition: Relation[] = [
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  constructor(private _snackBar: MatSnackBar) { }
+  constructor(private _snackBar: MatSnackBar, public dialog: MatDialog) { }
+
+  openDialog(name: string, dob: Date, gender: string): void {
+    const dialogRef = this.dialog.open(ConfirmationDialog, {
+      width: '20rem',
+      maxWidth: '30rem',
+      data: { name: name, dob: dob.toDateString(), gender: gender },
+    });
+
+    dialogRef.afterClosed().subscribe(reset => {
+      if (reset === true) {
+        this.formReset();
+      }
+    });
+  }
+
   title: string = 'numerology-app';
 
-  name: string = 'Goura Gopal Dalai';
-  selectedGender: Gender | undefined = Gender.Male;
-  dob: Date = new Date('12/5/1996');
+  defaultDate: Date = new Date('12/31/1996');
+  name: string | undefined;
+  selectedGender: Gender | undefined;
+  dob: Date = this.defaultDate;
   person: Person | undefined;
-  generatedNumbers: number[] = [];
-  ones: string = '';
-  twos: string = '';
-  threes: string = '';
-  fours: string = '';
-  fives: string = '';
-  sixes: string = '';
-  sevens: string = '';
-  eights: string = '';
-  nines: string = '';
-  EarthElements = EarthElementDefinition;
-  personalityNumber: number = 0;
-  heartDesireNumber: NameNumber[] = [];
-  FullNameNumber: NameNumber[] = [];
 
   genders: DropDown[] = [
     { value: Gender.Male, displayName: Gender[Gender.Male] },
@@ -174,109 +238,91 @@ export class AppComponent {
     this._snackBar.open(message, action);
   }
 
-  calculate() {
+  formReset() {
+    this.reset();
+    this.dob = this.defaultDate;
+    this.name = '';
+    this.selectedGender = undefined;
+  }
+
+  reset() {
     this._snackBar.dismiss();
-    this.generatedNumbers = [];
+    this.person = undefined;
+  }
+
+  calculate() {
+    this.reset();
     if (this.dob === undefined) {
       this.openSnackBar("Please enter a valid birthday");
-    } else if (this.name.trim().length < 1) {
+      return;
+    } else if (this.name === undefined || this.name.trim().length < 1) {
       this.openSnackBar("Please enter a valid name");
+      return;
     } else if (this.selectedGender === undefined) {
       this.openSnackBar("Please choose a gender");
+      return;
     }
+    
+    const name: string = this.name;
+    const dob: Date = this.dob;
+    const gender: Gender = this.selectedGender as Gender;
+    const genderAsString: string = this.genders[gender].displayName;
 
-    const psychic = this.getPsychic();
-    const destiny = this.getDestinyNumber();
-    const kNo = this.getKuaNumber();
-    const masters = this.getMasterNumbers();
-    this.generatedNumbers = this.generateNumbers(psychic, destiny, kNo);
-    this.initLuShoGrid();
-    this.personalityNumber = this.getPersonalityNumber();
+    this.openDialog(name, dob, genderAsString);
+    const psychic = this.getPsychic(dob);
+    const destiny = this.getDestinyNumber(dob);
+    const KuaNumber = this.getKuaNumber(dob, gender);
+    const generatedNumbers = this.generateNumbers(dob, psychic, destiny, KuaNumber);
 
-    const missingNumbers = this.getMissingNumbers();
-    console.log("psychic number = " + psychic);
-    console.log("destiny number = " + destiny);
-    console.log("master numbers = " + masters);
-    console.log("karmic number = " + kNo);
-    console.log("lu sho numbers = " + this.generatedNumbers);
-    console.log("missing numbers = " + missingNumbers);
-    console.log("complementary numbers = " + this.getComplementaryNumbers(missingNumbers));
-    console.log("First Impression Number = " + this.personalityNumber);
-    console.log("Soul Urge Number = ");
-    this.heartDesireNumber = this.getHeartDesireNumber();
-    this.heartDesireNumber.forEach(element => {
-      console.log(element);
-    });
-    console.log("FULL NAME");
-    this.FullNameNumber = this.getFullNameNumber(this.name);
-    this.FullNameNumber.forEach(element => {
-      console.log(element);
-    });
-    console.log("karmic debt number = " + this.getKarmicDebtNumber());
-    console.log("Planes = " + this.getPlanes());
-    console.log("Small Planes = " + this.getSmallPlanes());
-    console.log("Missing Planes = " + this.getMissingPlanes(missingNumbers));
-    console.log("Friendly Psychic " + psychic + " and Destiny " + destiny + " = " + this.getRelation(psychic, destiny));
-    console.log("Friendly Destiny " + destiny + " and Psychic " + psychic + " = " + this.getRelation(destiny, psychic));
-    console.log("Repeating Numbers = " + this.getRepeatingNumbers());
-    console.log("Earth Elements = " + this.getEarthElements());
+    this.person = {
+      Name: name,
+      Birthday: dob.toDateString(),
+      Gender: genderAsString,
+      Psychic: psychic,
+      Destiny: destiny,
+      karmic: KuaNumber,
+      MasterNumber: this.getMasterNumbers(dob),
+      KarmicDebt: this.getKarmicDebtNumber(dob),
+      FirstImpression: this.getPersonalityNumber(name),
+      CompleteName: this.getFullNameNumber(name),
+      HeartDesire: this.getHeartDesireNumber(name),
+      LuShoGrid: this.initLuShoGrid(generatedNumbers),
+      Missing: this.getMissingNumbers(generatedNumbers),
+      IsFriendlyPsychicDestiny: this.getRelation(psychic, destiny),
+      IsFriendlyDestinyPsychic: this.getRelation(destiny, psychic),
+      Repeating: this.getRepeatingNumbers(generatedNumbers),
+      CompletePlanes: this.getPlanes(generatedNumbers),
+      Elements: this.getEarthElements(generatedNumbers)
+    }
   }
 
-  initLuShoGrid() {
-    this.ones = '';
-    this.twos = '';
-    this.threes = '';
-    this.fours = '';
-    this.fives = '';
-    this.sixes = '';
-    this.sevens = '';
-    this.eights = '';
-    this.nines = '';
-    this.generatedNumbers.forEach(n => {
-      switch (n) {
-        case 1:
-          this.ones += n;
-          break;
-        case 2:
-          this.twos += n;
-          break;
-        case 3:
-          this.threes += n;
-          break;
-        case 4:
-          this.fours += n;
-          break;
-        case 5:
-          this.fives += n;
-          break;
-        case 6:
-          this.sixes += n;
-          break;
-        case 7:
-          this.sevens += n;
-          break;
-        case 8:
-          this.eights += n;
-          break;
-        case 9:
-          this.nines += n;
-          break;
+  initLuShoGrid(generatedNumbers: number[]): LuShoGrid[] {
+    let numbers: string[] = [];
+    generatedNumbers.forEach(n => {
+      if (numbers[n] === undefined) {
+        numbers[n] = '';
       }
+      numbers[n] += n;
     });
+    let luShoGrid: LuShoGrid[] = [];
+    [4, 9, 2, 3, 5, 7, 8, 1, 6].forEach(n => {
+      luShoGrid.push({ number: numbers[n], color: LuShoGridColorDefinition[n], planet: PlanetDefinition[n], earthElement: EarthElementDefinition[n] });
+    });
+    return luShoGrid;
   }
 
-  getPsychic(): number {
-    return this.getSingleNumber(this.dob.getDate());
+  getPsychic(dob: Date): number {
+    return this.getSingleNumber(dob.getDate());
   }
 
   getSingleNumber(value: number): number {
     return (value - 1) % 9 + 1;
   }
 
-  getMasterNumbers(): number[] {
+  getMasterNumbers(dob: Date): number[] {
     let masterNumber: number[] = [];
 
-    let date = this.dob.getDate();
+    let date = dob.getDate();
     if (date > 9) {
       if (date === 11 || date === 22 || date === 29) {
         if (date === 29) {
@@ -287,14 +333,14 @@ export class AppComponent {
       date = this.getSingleNumber(date);
     }
 
-    let month = this.dob.getMonth() + 1;
+    let month = dob.getMonth() + 1;
     if (month === 11) {
       masterNumber.push(month);
     } else if (month > 9) {
       month = this.getSum(month);
     }
 
-    let yearSum = this.getSum(this.dob.getFullYear());
+    let yearSum = this.getSum(dob.getFullYear());
     switch (yearSum) {
       case 11:
       case 22:
@@ -328,23 +374,23 @@ export class AppComponent {
     return sum;
   }
 
-  getDestinyNumber(): number {
-    return this.getSingleNumber(this.dob.getDate() + this.dob.getMonth() + 1 + this.dob.getFullYear());
+  getDestinyNumber(dob: Date): number {
+    return this.getSingleNumber(dob.getDate() + dob.getMonth() + 1 + dob.getFullYear());
   }
 
-  getKuaNumber(): number {
-    const _year = this.getSingleNumber(this.dob.getFullYear());
-    return this.getSingleNumber(this.selectedGender === Gender.Male ? 11 - _year : 4 + _year);
+  getKuaNumber(dob: Date, gender: Gender): number {
+    const _year = this.getSingleNumber(dob.getFullYear());
+    return this.getSingleNumber(gender === Gender.Male ? 11 - _year : 4 + _year);
   }
 
   isMasterNumber(date: number): boolean {
     return (date === 11 || date === 22 || date === 33 || date === 44 || date === 55);
   }
 
-  generateNumbers(psychic: number, destiny: number, KuaNumber: number): number[] {
-    const date: number = this.dob.getDate();
-    const month: number = this.dob.getMonth() + 1;
-    const year: number = this.dob.getFullYear();
+  generateNumbers(dob: Date, psychic: number, destiny: number, KuaNumber: number): number[] {
+    const date: number = dob.getDate();
+    const month: number = dob.getMonth() + 1;
+    const year: number = dob.getFullYear();
 
     let numbers: number[] = [];
 
@@ -381,11 +427,11 @@ export class AppComponent {
     return numbers;
   }
 
-  getMissingNumbers(): number[] {
+  getMissingNumbers(generatedNumbers: number[]): number[] {
     let missingNos: number[] = [];
 
     for (let i = 1; i <= 9; ++i) {
-      if (this.generatedNumbers.includes(i) === false) {
+      if (generatedNumbers.includes(i) === false) {
         missingNos.push(i);
       }
     }
@@ -393,48 +439,71 @@ export class AppComponent {
     return missingNos;
   }
 
-  getPersonalityNumber(): number {
-    let sum: number = 0;
-    for (let alphabet of this.name.toLowerCase()) {
-      if (!this.isVowel(alphabet)) {
-        sum += this.getLetterMap(alphabet);
-      }
-    }
-    return this.getSingleNumber(sum);
-  }
-
-  getHeartDesireNumber(): NameNumber[] {
+  getPersonalityNumber(name: string): NameNumber[] {
     let hdNum: NameNumber[] = [];
-    const fullName: string[] = this.name.split(' ');
+    const fullName: string[] = name.split(' ');
     const firstName = fullName[0];
     const lastName = fullName[fullName.length - 1];
     let firstAndMiddleName = fullName.slice(0, -1).join(' ');
+    let middleName = fullName.slice(1, -1).join(' ');
 
-    hdNum.push({ Name: this.name, Number: this.getSingleNumber(this.getVowelNumber(this.name.toLowerCase())) });
-    hdNum.push({ Name: firstName, Number: this.getSingleNumber(this.getVowelNumber(firstName.toLowerCase())) });
-    if (firstAndMiddleName !== firstName) {
-      hdNum.push({ Name: firstAndMiddleName, Number: this.getSingleNumber(this.getVowelNumber(firstAndMiddleName.toLowerCase())) });
+    hdNum.push(this.getNameNumberObj(name, this.getConsonantNumber(name.toLowerCase())));
+    hdNum.push(this.getNameNumberObj(firstName, this.getConsonantNumber(firstName.toLowerCase())));
+    if (firstAndMiddleName !== '' && firstAndMiddleName !== firstName) {
+      hdNum.push(this.getNameNumberObj(firstAndMiddleName, this.getConsonantNumber(firstAndMiddleName.toLowerCase())));
     }
-    hdNum.push({ Name: lastName, Number: this.getSingleNumber(this.getVowelNumber(lastName.toLowerCase())) });
+    if (middleName !== '' && middleName !== firstAndMiddleName) {
+      hdNum.push(this.getNameNumberObj(middleName, this.getConsonantNumber(middleName.toLowerCase())));
+    }
+    hdNum.push(this.getNameNumberObj(lastName, this.getConsonantNumber(lastName.toLowerCase())));
+
+    return hdNum;
+  }
+
+  getHeartDesireNumber(name: string): NameNumber[] {
+    let hdNum: NameNumber[] = [];
+    const fullName: string[] = name.split(' ');
+    const firstName = fullName[0];
+    const lastName = fullName[fullName.length - 1];
+    let firstAndMiddleName = fullName.slice(0, -1).join(' ');
+    let middleName = fullName.slice(1, -1).join(' ');
+
+    hdNum.push(this.getNameNumberObj(name, this.getVowelNumber(name.toLowerCase())));
+    hdNum.push(this.getNameNumberObj(firstName, this.getVowelNumber(firstName.toLowerCase())));
+    if (firstAndMiddleName !== '' && firstAndMiddleName !== firstName) {
+      hdNum.push(this.getNameNumberObj(firstAndMiddleName, this.getVowelNumber(firstAndMiddleName.toLowerCase())));
+    }
+    if (middleName !== '' && middleName !== firstAndMiddleName) {
+      hdNum.push(this.getNameNumberObj(middleName, this.getVowelNumber(middleName.toLowerCase())));
+    }
+    hdNum.push(this.getNameNumberObj(lastName, this.getVowelNumber(lastName.toLowerCase())));
 
     return hdNum;
   }
 
   getFullNameNumber(name: string): NameNumber[] {
     let hdNum: NameNumber[] = [];
-    const fullName: string[] = this.name.split(' ');
+    const fullName: string[] = name.split(' ');
     const firstName = fullName[0];
     const lastName = fullName[fullName.length - 1];
     let firstAndMiddleName = fullName.slice(0, -1).join(' ');
+    let middleName = fullName.slice(1, -1).join(' ');
 
-    hdNum.push({ Name: this.name, Number: this.getNameNumberFull(this.name.toLowerCase()) });
-    hdNum.push({ Name: firstName, Number: this.getNameNumberFull(firstName.toLowerCase()) });
-    if (firstAndMiddleName !== firstName) {
-      hdNum.push({ Name: firstAndMiddleName, Number: this.getNameNumberFull(firstAndMiddleName.toLowerCase()) });
+    hdNum.push(this.getNameNumberObj(name, this.getNameNumberFull(name.toLowerCase())));
+    hdNum.push(this.getNameNumberObj(firstName, this.getNameNumberFull(firstName.toLowerCase())));
+    if (firstAndMiddleName !== '' && firstAndMiddleName !== firstName) {
+      hdNum.push(this.getNameNumberObj(firstAndMiddleName, this.getNameNumberFull(firstAndMiddleName.toLowerCase())));
     }
-    hdNum.push({ Name: lastName, Number: this.getNameNumberFull(lastName.toLowerCase()) });
+    if (middleName !== '' && middleName !== firstAndMiddleName) {
+      hdNum.push(this.getNameNumberObj(middleName, this.getNameNumberFull(middleName.toLowerCase())));
+    }
+    hdNum.push(this.getNameNumberObj(lastName, this.getNameNumberFull(lastName.toLowerCase())));
 
     return hdNum;
+  }
+
+  getNameNumberObj(_name: string, _number: number): NameNumber {
+    return { Name: _name, Number: _number, FullNumber: this.getSingleNumber(_number) };
   }
 
   getNameNumberFull(name: string): number {
@@ -455,7 +524,17 @@ export class AppComponent {
         sum += this.getLetterMap(name[j]);
       }
     }
-    return this.getSingleNumber(sum);
+    return sum;
+  }
+
+  getConsonantNumber(name: string): number {
+    let sum: number = 0;
+    for (let j = 0; j < name.length; ++j) {
+      if (!this.isVowel(name[j])) {
+        sum += this.getLetterMap(name[j]);
+      }
+    }
+    return sum;
   }
 
   isVowel(letter: string): boolean {
@@ -561,8 +640,8 @@ export class AppComponent {
     }
   }
 
-  hasKarmicDebtNumber(): boolean {
-    switch (this.dob.getDate()) {
+  hasKarmicDebtNumber(dob: Date): boolean {
+    switch (dob.getDate()) {
       case 10:
       case 13:
       case 14:
@@ -574,32 +653,32 @@ export class AppComponent {
     }
   }
 
-  getKarmicDebtNumber(): number | undefined {
-    if (this.hasKarmicDebtNumber()) {
-      return this.dob.getDate();
+  getKarmicDebtNumber(dob: Date): number | undefined {
+    if (this.hasKarmicDebtNumber(dob)) {
+      return dob.getDate();
     }
     return undefined;
   }
 
   checker = (arr: number[], target: number[]) => target.every(v => arr.includes(v));
-  getPlanes(): Planes[] {
+  getPlanes(generatedNumbers: number[]): Planes[] {
     let planes: Planes[] = [];
 
     for (let item in Planes) {
       const plane = Planes[item as Planes];
-      if (this.checker(this.generatedNumbers, PlanesDefinition[plane])) {
+      if (this.checker(generatedNumbers, PlanesDefinition[plane])) {
         planes.push(plane);
       }
     }
     return planes;
   }
 
-  getSmallPlanes(): SmallPlane[] {
+  getSmallPlanes(generatedNumbers: number[]): SmallPlane[] {
     let planes: SmallPlane[] = [];
 
     for (let item in SmallPlane) {
       const plane = SmallPlane[item as SmallPlane];
-      if (this.checker(this.generatedNumbers, SmallPlanesDefinition[plane])) {
+      if (this.checker(generatedNumbers, SmallPlanesDefinition[plane])) {
         planes.push(plane);
       }
     }
@@ -639,11 +718,11 @@ export class AppComponent {
     return relation;
   }
 
-  getRepeatingNumbers(): number[] {
+  getRepeatingNumbers(generatedNumbers: number[]): number[] {
     let repeatingNumbers: number[] = [];
     for (let i = 1; i <= 9; ++i) {
       let repeatingNumber: number = i;
-      for (let j = 1; j < this.generatedNumbers.filter(e => e === i).length; ++j) {
+      for (let j = 1; j < generatedNumbers.filter(e => e === i).length; ++j) {
         repeatingNumber += i * Math.pow(10, j);
       }
       if (repeatingNumber > 9) {
@@ -653,11 +732,32 @@ export class AppComponent {
     return repeatingNumbers;
   }
 
-  getEarthElements(): EarthElement[] {
+  getEarthElements(generatedNumbers: number[]): EarthElement[] {
     let earthElement: EarthElement[] = [];
-    this.generatedNumbers.filter((v, i, a) => a.indexOf(v) === i).forEach(n => {
+    generatedNumbers.filter((v, i, a) => a.indexOf(v) === i).forEach(n => {
       earthElement.push(EarthElementDefinition[n]);
     });
     return earthElement;
+  }
+}
+
+export interface DialogData {
+  name: string;
+  dob: string;
+  gender: string;
+}
+
+@Component({
+  selector: 'confirmation-dialog',
+  templateUrl: 'confirmation-dialog.html',
+})
+export class ConfirmationDialog {
+  constructor(
+    public dialogRef: MatDialogRef<ConfirmationDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: DialogData,
+  ) { }
+
+  confirm(): void {
+    this.dialogRef.close();
   }
 }
