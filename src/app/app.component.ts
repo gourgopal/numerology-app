@@ -1,4 +1,5 @@
 import { Component, Inject } from '@angular/core';
+import { FormBuilder } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -206,7 +207,7 @@ const RelationDefinition: Relation[] = [
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  constructor(private _snackBar: MatSnackBar, public dialog: MatDialog) { }
+  constructor(private _snackBar: MatSnackBar, public dialog: MatDialog, private formBuilder: FormBuilder) { }
 
   openDialog(name: string, dob: Date, gender: string): void {
     const dialogRef = this.dialog.open(ConfirmationDialog, {
@@ -223,12 +224,14 @@ export class AppComponent {
   }
 
   title: string = 'Numerology App';
-
   defaultDate: Date = new Date('12/31/1996');
-  name: string | undefined;
-  selectedGender: Gender | undefined;
-  dob: Date = this.defaultDate;
   person: Person | undefined;
+
+  userForm = this.formBuilder.group({
+    name: '',
+    dob: '',
+    selectedGender: -1
+  });
 
   genders: DropDown[] = [
     { value: Gender.Male, displayName: Gender[Gender.Male] },
@@ -243,9 +246,7 @@ export class AppComponent {
 
   formReset() {
     this.reset();
-    this.dob = this.defaultDate;
-    this.name = '';
-    this.selectedGender = undefined;
+    this.userForm.reset();
   }
 
   reset() {
@@ -267,20 +268,20 @@ export class AppComponent {
 
   calculate() {
     this.reset();
-    if (this.dob === undefined) {
+    if (!this.userForm.value.dob) {
       this.openSnackBar("Please enter a valid birthday");
       return;
-    } else if (this.name === undefined || this.name.trim().length < 1) {
+    } else if (!this.userForm.value.name || this.userForm.value.name.trim().length < 1) {
       this.openSnackBar("Please enter a valid name");
       return;
-    } else if (this.selectedGender === undefined) {
+    } else if (this.userForm.value.selectedGender === undefined) {
       this.openSnackBar("Please choose a gender");
       return;
     }
 
-    const name: string = this.name;
-    const dob: Date = this.dob;
-    const gender: Gender = this.selectedGender as Gender;
+    const name: string = this.userForm.value.name;
+    const dob: Date = new Date(this.userForm.value.dob);
+    const gender: Gender = this.userForm.value.selectedGender === 0 ? Gender.Male : Gender.Female;
     const genderAsString: string = this.genders[gender].displayName;
 
     this.openDialog(name, dob, genderAsString);

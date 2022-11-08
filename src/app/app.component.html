@@ -1,7 +1,8 @@
-<mat-toolbar class="mat-elevation-z4" color="primary">
+<mat-toolbar class="mat-elevation-z4" color="accent">
   <span>{{title}}</span>
   <span class="example-spacer"></span>
-  <a mat-icon-button aria-label="Follow icon-button with heart icon" href="https://twitter.com/intent/user?screen_name=ProgrammerGopal" target="_blank">
+  <a mat-icon-button aria-label="Follow icon-button with heart icon"
+    href="https://twitter.com/intent/user?screen_name=ProgrammerGopal" target="_blank">
     <mat-icon>favorite</mat-icon>
   </a>
   <button mat-icon-button aria-label="Share icon-button with share icon" (click)="share()">
@@ -9,11 +10,12 @@
   </button>
 </mat-toolbar>
 
-<div class="info-form">
+<form class="info-form" [formGroup]="userForm" (ngSubmit)="calculate()">
   <p>
     <mat-form-field appearance="outline">
       <mat-label>Enter Full Name</mat-label>
-      <input matInput placeholder="Your Name" [(ngModel)]="name" (change)="reset()" required>
+      <input matInput placeholder="Your Name" formControlName="name" (change)="reset()" required aria-label="Name"
+        autocomplete="given-name">
       <mat-icon matSuffix>person</mat-icon>
       <mat-hint>Official Name as on Certificate</mat-hint>
     </mat-form-field>
@@ -22,7 +24,8 @@
   <p>
     <mat-form-field appearance="fill">
       <mat-label>Actual birthday</mat-label>
-      <input matInput [matDatepicker]="picker" [(ngModel)]="dob" (dateChange)="reset()" required>
+      <input matInput [matDatepicker]="picker" formControlName="dob" (dateChange)="reset()" required
+        aria-label="Birthday" autocomplete="bday-day">
       <mat-hint>MM/DD/YYYY</mat-hint>
       <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-datepicker #picker></mat-datepicker>
@@ -32,7 +35,8 @@
   <p>
     <mat-form-field appearance="fill">
       <mat-label>Choose Gender</mat-label>
-      <mat-select [(ngModel)]="selectedGender" (valueChange)="reset()" required>
+      <mat-select formControlName="selectedGender" (valueChange)="reset()" required aria-label="Gender"
+        autocomplete="gender">
         <mat-option *ngFor="let gender of genders" [value]="gender.value">
           {{gender.displayName}}
         </mat-option>
@@ -41,9 +45,9 @@
   </p>
 
   <p>
-    <button mat-raised-button color="primary" (click)="calculate()">Get Report</button>
+    <button type="submit" mat-raised-button color="accent">Get Report</button>
   </p>
-</div>
+</form>
 
 <mat-divider></mat-divider>
 
