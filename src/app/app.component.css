@@ -27,3 +27,7 @@ mat-grid-tile {
 .details-card {
     max-width: 30rem;
 }
+
+.info-form {
+    padding: 0.5rem;
+}

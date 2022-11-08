@@ -1,53 +1,56 @@
-<mat-toolbar>
-  <span>Numerology</span>
+<mat-toolbar class="mat-elevation-z4" color="primary">
+  <span>{{title}}</span>
   <span class="example-spacer"></span>
-  <button mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">
+  <a mat-icon-button aria-label="Follow icon-button with heart icon" href="https://twitter.com/intent/user?screen_name=ProgrammerGopal" target="_blank">
     <mat-icon>favorite</mat-icon>
-  </button>
-  <button mat-icon-button class="example-icon" aria-label="Example icon-button with share icon">
+  </a>
+  <button mat-icon-button aria-label="Share icon-button with share icon" (click)="share()">
     <mat-icon>share</mat-icon>
   </button>
 </mat-toolbar>
 
-<p>
-  <mat-form-field appearance="outline">
-    <mat-label>Enter Full Name</mat-label>
-    <input matInput placeholder="Your Name" [(ngModel)]="name" (change)="reset()">
-    <mat-icon matSuffix>person</mat-icon>
-    <mat-hint>Official Name as on Certificate</mat-hint>
-  </mat-form-field>
-</p>
+<div class="info-form">
+  <p>
+    <mat-form-field appearance="outline">
+      <mat-label>Enter Full Name</mat-label>
+      <input matInput placeholder="Your Name" [(ngModel)]="name" (change)="reset()" required>
+      <mat-icon matSuffix>person</mat-icon>
+      <mat-hint>Official Name as on Certificate</mat-hint>
+    </mat-form-field>
+  </p>
 
-<p>
-  <mat-form-field appearance="fill">
-    <mat-label>Actual birthday</mat-label>
-    <input matInput [matDatepicker]="picker" [(ngModel)]="dob" (dateChange)="reset()">
-    <mat-hint>MM/DD/YYYY</mat-hint>
-    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-    <mat-datepicker #picker></mat-datepicker>
-  </mat-form-field>
-</p>
+  <p>
+    <mat-form-field appearance="fill">
+      <mat-label>Actual birthday</mat-label>
+      <input matInput [matDatepicker]="picker" [(ngModel)]="dob" (dateChange)="reset()" required>
+      <mat-hint>MM/DD/YYYY</mat-hint>
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+  </p>
 
-<p>
-  <mat-form-field appearance="fill">
-    <mat-label>Choose Gender</mat-label>
-    <mat-select [(ngModel)]="selectedGender" (valueChange)="reset()">
-      <mat-option *ngFor="let gender of genders" [value]="gender.value">
-        {{gender.displayName}}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
-</p>
+  <p>
+    <mat-form-field appearance="fill">
+      <mat-label>Choose Gender</mat-label>
+      <mat-select [(ngModel)]="selectedGender" (valueChange)="reset()" required>
+        <mat-option *ngFor="let gender of genders" [value]="gender.value">
+          {{gender.displayName}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </p>
 
-<p>
-  <button mat-raised-button color="primary" (click)="calculate()">Get Report</button>
-</p>
+  <p>
+    <button mat-raised-button color="primary" (click)="calculate()">Get Report</button>
+  </p>
+</div>
 
 <mat-divider></mat-divider>
 
 <p *ngIf="person">
   <mat-grid-list cols="3" rowHeight="10rem">
-    <mat-grid-tile *ngFor="let LuSho of person.LuShoGrid" [style.background]="LuSho.color">
+    <mat-grid-tile *ngFor="let LuSho of person.LuShoGrid" [style.background]="LuSho.color" matRipple
+      (click)="openSnackBar(LuSho.number ? 'Planet for ' + LuSho.id + ': ' + LuSho.planet + ', and Element: ' + LuSho.earthElement : LuSho.id + ' is missing.')">
       <mat-grid-tile-header>
         <h4 class="headline" matTooltip="Planet: {{LuSho.planet}}">{{LuSho.planet}}</h4>
       </mat-grid-tile-header>
@@ -64,87 +67,94 @@
 <p *ngIf="person">
   <mat-list>
     <div mat-subheader>Birthday Analysis</div>
-    <mat-list-item>
+    <mat-list-item matRipple (click)="openSnackBar('Psychic Number (मूलांक): ' + person.Psychic)">
       <mat-icon mat-list-icon>emoji_people</mat-icon>
       <div mat-line>Psychic</div>
       <div mat-line> {{person.Psychic}} </div>
     </mat-list-item>
 
-    <mat-list-item>
+    <mat-list-item matRipple (click)="openSnackBar('Destiny Number (भाग्यांक): ' + person.Destiny)">
       <mat-icon mat-list-icon>star_border_purple500</mat-icon>
       <div mat-line>Destiny</div>
       <div mat-line> {{person.Destiny}} </div>
     </mat-list-item>
 
-    <mat-list-item>
+    <mat-list-item matRipple (click)="openSnackBar('Kua number: ' + person.karmic)">
       <mat-icon mat-list-icon>directions</mat-icon>
       <div mat-line>Kua number</div>
       <div mat-line> {{person.karmic}} </div>
     </mat-list-item>
-    
-    <mat-list-item>
+
+    <mat-list-item matRipple
+      (click)="openSnackBar('Psychic and Destiny Compatibility: ' + person.IsFriendlyPsychicDestiny)">
       <mat-icon mat-list-icon>compare_arrows</mat-icon>
       <div mat-line>Psychic and Destiny Compatibility</div>
       <div mat-line> {{person.IsFriendlyPsychicDestiny}} </div>
     </mat-list-item>
-        
-    <mat-list-item>
+
+    <mat-list-item matRipple
+      (click)="openSnackBar('Destiny and Psychic Compatibility: ' + person.IsFriendlyDestinyPsychic)">
       <mat-icon mat-list-icon>compare</mat-icon>
       <div mat-line>Destiny and Psychic Compatibility</div>
       <div mat-line> {{person.IsFriendlyDestinyPsychic}} </div>
     </mat-list-item>
-            
-    <mat-list-item>
+
+    <mat-list-item matRipple (click)="openSnackBar('Elements: ' + person.Elements)">
       <mat-icon mat-list-icon>local_fire_department</mat-icon>
       <div mat-line>Elements</div>
       <div mat-line> {{person.Elements}} </div>
     </mat-list-item>
-            
-    <mat-list-item>
+
+    <mat-list-item matRipple
+      (click)="openSnackBar(person.KarmicDebt === undefined ? 'No Karmic Debt' : 'Karmic Debt: ' + person.KarmicDebt)">
       <mat-icon mat-list-icon>personal_injury</mat-icon>
       <div mat-line>Karmic Debt</div>
       <div mat-line *ngIf="person.KarmicDebt === undefined"> No karmic debts </div>
       <div mat-line *ngIf="person.KarmicDebt"> {{person.KarmicDebt}} </div>
     </mat-list-item>
 
-    <mat-list-item>
+    <mat-list-item matRipple (click)="openSnackBar('Missing Numbers: ' + person.Missing)">
       <mat-icon mat-list-icon>person_remove</mat-icon>
       <div mat-line>Missing Numbers</div>
       <div mat-line> {{person.Missing}} </div>
     </mat-list-item>
 
-    <mat-list-item>
+    <mat-list-item matRipple (click)="openSnackBar('Complete Planes: ' + person.CompletePlanes)">
       <mat-icon mat-list-icon>grid_off</mat-icon>
       <div mat-line>Complete Planes</div>
       <div mat-line> {{person.CompletePlanes}} </div>
     </mat-list-item>
 
-    <mat-list-item>
+    <mat-list-item matRipple
+      (click)="openSnackBar(person.MasterNumber.length === 0 ? 'No Master Number' : 'Master Number: ' + person.MasterNumber)">
       <mat-icon mat-list-icon>auto_fix_high</mat-icon>
       <div mat-line>Master Number</div>
       <div mat-line *ngIf="person.MasterNumber.length === 0"> No master number </div>
       <div mat-line *ngIf="person.MasterNumber"> {{person.MasterNumber}} </div>
     </mat-list-item>
-    
+
     <mat-divider></mat-divider>
 
     <div mat-subheader>Name Analysis</div>
-    <mat-list-item>
+    <mat-list-item matRipple
+      (click)="openSnackBar('Personality (First Impression): ' + ConvertNameNumberArrayToString(person.FirstImpression))">
       <mat-icon mat-list-icon>person_outline</mat-icon>
       <div mat-line>Personality (First Impression)</div>
-      <div mat-line><span *ngFor="let h of person.FirstImpression">{{h.Name}} ({{h.FullNumber}}:{{h.Number}}); </span></div>
+      <div mat-line>{{ConvertNameNumberArrayToString(person.FirstImpression)}}</div>
     </mat-list-item>
 
-    <mat-list-item>
+    <mat-list-item matRipple
+      (click)="openSnackBar('Heart Desire (Soul Urge): ' + ConvertNameNumberArrayToString(person.HeartDesire))">
       <mat-icon mat-list-icon>person_search</mat-icon>
       <div mat-line>Heart Desire (Soul Urge)</div>
-      <div mat-line><span *ngFor="let h of person.HeartDesire">{{h.Name}} ({{h.FullNumber}}:{{h.Number}}); </span></div>
+      <div mat-line>{{ConvertNameNumberArrayToString(person.HeartDesire)}}</div>
     </mat-list-item>
 
-    <mat-list-item>
+    <mat-list-item matRipple
+      (click)="openSnackBar('Name Expression: ' + ConvertNameNumberArrayToString(person.CompleteName))">
       <mat-icon mat-list-icon>person_pin</mat-icon>
       <div mat-line>Name Expression</div>
-      <div mat-line><span *ngFor="let h of person.CompleteName">{{h.Name}} ({{h.FullNumber}}:{{h.Number}}); </span></div>
+      <div mat-line>{{ConvertNameNumberArrayToString(person.CompleteName)}}</div>
     </mat-list-item>
   </mat-list>
 </p>

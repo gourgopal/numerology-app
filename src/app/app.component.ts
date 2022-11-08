@@ -149,6 +149,7 @@ enum RelationType {
 }
 
 interface LuShoGrid {
+  id: number;
   number: string;
   color: string;
   planet: string;
@@ -221,7 +222,7 @@ export class AppComponent {
     });
   }
 
-  title: string = 'numerology-app';
+  title: string = 'Numerology App';
 
   defaultDate: Date = new Date('12/31/1996');
   name: string | undefined;
@@ -235,7 +236,9 @@ export class AppComponent {
   ];
 
   openSnackBar(message: string, action: string = 'Okay') {
-    this._snackBar.open(message, action);
+    this._snackBar.open(message, action, {
+      duration: message.length > 50 ? 30000 : 6000,
+    });
   }
 
   formReset() {
@@ -250,6 +253,18 @@ export class AppComponent {
     this.person = undefined;
   }
 
+  share() {
+    if (navigator.share) {
+      navigator.share({
+        title: document.title,
+        text: "Do Numerology Calculations including Lu-Sho Grid.",
+        url: window.location.href
+      })
+      .then(() => console.log('Successful share'))
+      .catch(error => console.log('Error sharing:', error));
+    }
+  }
+
   calculate() {
     this.reset();
     if (this.dob === undefined) {
@@ -262,7 +277,7 @@ export class AppComponent {
       this.openSnackBar("Please choose a gender");
       return;
     }
-    
+
     const name: string = this.name;
     const dob: Date = this.dob;
     const gender: Gender = this.selectedGender as Gender;
@@ -306,7 +321,7 @@ export class AppComponent {
     });
     let luShoGrid: LuShoGrid[] = [];
     [4, 9, 2, 3, 5, 7, 8, 1, 6].forEach(n => {
-      luShoGrid.push({ number: numbers[n], color: LuShoGridColorDefinition[n], planet: PlanetDefinition[n], earthElement: EarthElementDefinition[n] });
+      luShoGrid.push({ id: n, number: numbers[n], color: LuShoGridColorDefinition[n], planet: PlanetDefinition[n], earthElement: EarthElementDefinition[n] });
     });
     return luShoGrid;
   }
@@ -738,6 +753,14 @@ export class AppComponent {
       earthElement.push(EarthElementDefinition[n]);
     });
     return earthElement;
+  }
+
+  ConvertNameNumberArrayToString(nameNumber: NameNumber[]): string {
+    let str = '';
+    nameNumber.forEach(h => {
+      str += h.Name + ' (' + h.FullNumber + ':' + h.Number + ');\n';
+    });
+    return str;
   }
 }
 
