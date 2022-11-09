@@ -274,7 +274,7 @@ export class AppComponent {
     } else if (!this.userForm.value.name || this.userForm.value.name.trim().length < 1) {
       this.openSnackBar("Please enter a valid name");
       return;
-    } else if (this.userForm.value.selectedGender === undefined || this.userForm.value.selectedGender === null || this.userForm.value.selectedGender == '') {
+    } else if (this.userForm.value.selectedGender != '0' && this.userForm.value.selectedGender != '1') {
       this.openSnackBar("Please choose a gender");
       return;
     }
