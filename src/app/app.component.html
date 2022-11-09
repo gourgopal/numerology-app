@@ -123,10 +123,27 @@
       <div mat-line> {{person.Missing}} </div>
     </mat-list-item>
 
-    <mat-list-item matRipple (click)="openSnackBar('Complete Planes: ' + person.CompletePlanes)">
+    <mat-list-item *ngIf="person.Complementary" matRipple
+      (click)="openSnackBar('Complementary Numbers fulfills the missing numbers by 25%: ' + ConvertMissingComplementaryToString(person.Complementary))">
+      <mat-icon mat-list-icon>person_add</mat-icon>
+      <div mat-line>Complementary For Missing Numbers</div>
+      <div mat-line> {{ConvertMissingComplementaryToString(person.Complementary)}} </div>
+    </mat-list-item>
+
+    <mat-list-item matRipple
+      (click)="openSnackBar(person.CompletePlanes.length > 0 ? 'Complete Planes: ' + person.CompletePlanes : 'No Complete Planes')">
       <mat-icon mat-list-icon>grid_off</mat-icon>
       <div mat-line>Complete Planes</div>
-      <div mat-line> {{person.CompletePlanes}} </div>
+      <div mat-line *ngIf="person.CompletePlanes.length === 0"> No Complete Planes </div>
+      <div mat-line *ngIf="person.CompletePlanes.length > 0"> {{person.CompletePlanes}} </div>
+    </mat-list-item>
+
+    <mat-list-item matRipple
+      (click)="openSnackBar(person.MissingPlanes !== undefined && person.MissingPlanes.length > 0 ? 'Missing Planes: ' + person.MissingPlanes : 'No Missing Planes')">
+      <mat-icon mat-list-icon>grid_off</mat-icon>
+      <div mat-line>Missing Planes</div>
+      <div mat-line *ngIf="person.MissingPlanes=== undefined || person.MissingPlanes.length === 0"> No Missing Planes </div>
+      <div mat-line *ngIf="person.MissingPlanes!== undefined && person.MissingPlanes.length > 0"> {{person.MissingPlanes}} </div>
     </mat-list-item>
 
     <mat-list-item matRipple

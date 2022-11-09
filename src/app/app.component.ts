@@ -24,7 +24,7 @@ enum Planes {
   Thought = "Thought"
 }
 
-type EnumDictionary<T extends Planes | SmallPlane | MissingPlane, U> = {
+type EnumDictionary<T extends Planes | SmallPlane, U> = {
   [K in T]: U;
 };
 
@@ -53,7 +53,7 @@ const SmallPlanesDefinition: EnumDictionary<SmallPlane, number[]> = {
   [SmallPlane.OneSeven]: [1, 7]
 }
 
-enum MissingPlane {
+/*enum MissingPlane {
   Weakness = "Weakness",
   Doubt = "Doubt",
   Loneliness = "Loneliness",
@@ -65,7 +65,7 @@ const MissingPlaneDefinition: EnumDictionary<MissingPlane, number[]> = {
   [MissingPlane.Weakness]: [2, 5, 8],
   [MissingPlane.Loneliness]: [3, 5, 7],
   [MissingPlane.Confusion]: [2, 7, 6]
-}
+}*/
 
 enum EarthElement {
   Fire = "Fire 🔥",
@@ -122,9 +122,9 @@ interface Person {
   FirstImpression: NameNumber[];
   CompleteName: NameNumber[];
   Missing: number[];
-  Complementary?: number[];
-  CompletePlanes?: Planes[];
-  PartialPlanes?: Planes[];
+  Complementary?: MissingComplementary[];
+  CompletePlanes: Planes[];
+  MissingPlanes?: Planes[];
   SmallPlanes?: SmallPlane[];
   IsFriendlyPsychicDestiny?: RelationType[];
   IsFriendlyDestinyPsychic?: RelationType[];
@@ -197,9 +197,14 @@ const RelationDefinition: Relation[] = [
   { Number: 5, Friends: [1, 2, 3, 5, 6], Neutrals: [4, 7, 8, 9] },
   { Number: 6, Friends: [1, 5, 6, 7], Enemies: [3], Neutrals: [2, 4, 8, 9] },
   { Number: 7, Friends: [1, 3, 4, 5, 6], Neutrals: [2, 7, 8, 9] },
-  { Number: 8, Friends: [3, 4, 5, 6, 7, 8], Enemies: [1], Neutrals: [9], Temporary_Friend: [4, 8] },
+  { Number: 8, Friends: [3, 4, 5, 6, 7, 8], Enemies: [1, 2], Neutrals: [9], Temporary_Friend: [4, 8] },
   { Number: 9, Friends: [1, 3, 5], Enemies: [4, 2], Neutrals: [6, 7, 8, 9] }
 ]
+
+interface MissingComplementary {
+  missingNumber: number;
+  complementaryNumber: number[] | string;
+}
 
 @Component({
   selector: 'app-root',
@@ -261,8 +266,8 @@ export class AppComponent {
         text: "Do Numerology Calculations including Lu-Sho Grid.",
         url: window.location.href
       })
-      .then(() => console.log('Successful share'))
-      .catch(error => console.log('Error sharing:', error));
+        .then(() => console.log('Successful share'))
+        .catch(error => console.log('Error sharing:', error));
     }
   }
 
@@ -308,8 +313,10 @@ export class AppComponent {
       IsFriendlyDestinyPsychic: this.getRelation(destiny, psychic),
       Repeating: this.getRepeatingNumbers(generatedNumbers),
       CompletePlanes: this.getPlanes(generatedNumbers),
-      Elements: this.getEarthElements(generatedNumbers)
+      Elements: this.getEarthElements(generatedNumbers),
     }
+    this.person.Complementary = this.getComplementaryNumbers(this.person.Missing, generatedNumbers);
+    this.person.MissingPlanes = this.getMissingPlanes(this.person.Missing);
   }
 
   initLuShoGrid(generatedNumbers: number[]): LuShoGrid[] {
@@ -524,8 +531,8 @@ export class AppComponent {
 
   getNameNumberFull(name: string): number {
     let sum: number = 0;
-    for (let j = 0; j < name.length; ++j) {
-      sum += this.getLetterMap(name[j]);
+    for (const element of name) {
+      sum += this.getLetterMap(element);
     }
     return sum;
   }
@@ -545,9 +552,9 @@ export class AppComponent {
 
   getConsonantNumber(name: string): number {
     let sum: number = 0;
-    for (let j = 0; j < name.length; ++j) {
-      if (!this.isVowel(name[j])) {
-        sum += this.getLetterMap(name[j]);
+    for (const element of name) {
+      if (!this.isVowel(element)) {
+        sum += this.getLetterMap(element);
       }
     }
     return sum;
@@ -619,15 +626,19 @@ export class AppComponent {
     'z': 7
   }
 
-  getComplementaryNumbers(missingNumbers: number[]): number[] {
-    let complementaryNumbers: number[] = [];
-
+  getComplementaryNumbers(missingNumbers: number[], availableNumbers: number[]): MissingComplementary[] {
+    let complementaryNumbers: MissingComplementary[] = [];
     missingNumbers.forEach(element => {
-      complementaryNumbers
-        .push(...this.getComplementaryForMissing(element));
-      //this is ECMAScript 6 spread syntax (optimized way of merging two arrays)
-    });
 
+      let cn = this.getComplementaryForMissing(element)
+      .filter(e => availableNumbers.includes(e));
+
+      complementaryNumbers.push(
+        {
+          missingNumber: element,
+          complementaryNumber: cn.length > 0 ? cn : 'x'
+        });
+    });
     return complementaryNumbers;
   }
 
@@ -701,12 +712,12 @@ export class AppComponent {
     return planes;
   }
 
-  getMissingPlanes(missingNumbers: number[]) {
-    let planes: MissingPlane[] = [];
+  getMissingPlanes(missingNumbers: number[]): Planes[] {
+    let planes: Planes[] = [];
 
-    for (let item in MissingPlane) {
-      const plane = MissingPlane[item as MissingPlane];
-      if (this.checker(missingNumbers, MissingPlaneDefinition[plane])) {
+    for (let item in Planes) {
+      const plane = Planes[item as Planes];
+      if (this.checker(missingNumbers, PlanesDefinition[plane])) {
         planes.push(plane);
       }
     }
@@ -759,7 +770,15 @@ export class AppComponent {
   ConvertNameNumberArrayToString(nameNumber: NameNumber[]): string {
     let str = '';
     nameNumber.forEach(h => {
-      str += h.Name + ' (' + h.FullNumber + ':' + h.Number + ');\n';
+      str += h.Name + ' (' + h.FullNumber + ':' + h.Number + '); ';
+    });
+    return str;
+  }
+  
+  ConvertMissingComplementaryToString(missingComplementary: MissingComplementary[]): string {
+    let str = '';
+    missingComplementary.forEach(h => {
+      str += '{' + h.missingNumber + ' ~ ' + h.complementaryNumber + '}; ';
     });
     return str;
   }
