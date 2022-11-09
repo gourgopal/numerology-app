@@ -230,7 +230,7 @@ export class AppComponent {
   userForm = this.formBuilder.group({
     name: '',
     dob: '',
-    selectedGender: -1
+    selectedGender: ''
   });
 
   genders: DropDown[] = [
@@ -274,14 +274,14 @@ export class AppComponent {
     } else if (!this.userForm.value.name || this.userForm.value.name.trim().length < 1) {
       this.openSnackBar("Please enter a valid name");
       return;
-    } else if (this.userForm.value.selectedGender === undefined) {
+    } else if (this.userForm.value.selectedGender === undefined || this.userForm.value.selectedGender === null || this.userForm.value.selectedGender == '') {
       this.openSnackBar("Please choose a gender");
       return;
     }
 
     const name: string = this.userForm.value.name;
     const dob: Date = new Date(this.userForm.value.dob);
-    const gender: Gender = this.userForm.value.selectedGender === 0 ? Gender.Male : Gender.Female;
+    const gender: Gender = parseInt(this.userForm.value.selectedGender) === 0 ? Gender.Male : Gender.Female;
     const genderAsString: string = this.genders[gender].displayName;
 
     this.openDialog(name, dob, genderAsString);
