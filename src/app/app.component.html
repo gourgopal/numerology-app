@@ -142,8 +142,10 @@
       (click)="openSnackBar(person.MissingPlanes !== undefined && person.MissingPlanes.length > 0 ? 'Missing Planes: ' + person.MissingPlanes : 'No Missing Planes')">
       <mat-icon mat-list-icon>grid_off</mat-icon>
       <div mat-line>Missing Planes</div>
-      <div mat-line *ngIf="person.MissingPlanes=== undefined || person.MissingPlanes.length === 0"> No Missing Planes </div>
-      <div mat-line *ngIf="person.MissingPlanes!== undefined && person.MissingPlanes.length > 0"> {{person.MissingPlanes}} </div>
+      <div mat-line *ngIf="person.MissingPlanes=== undefined || person.MissingPlanes.length === 0"> No Missing Planes
+      </div>
+      <div mat-line *ngIf="person.MissingPlanes!== undefined && person.MissingPlanes.length > 0">
+        {{person.MissingPlanes}} </div>
     </mat-list-item>
 
     <mat-list-item matRipple
@@ -176,6 +178,18 @@
       <mat-icon mat-list-icon>person_pin</mat-icon>
       <div mat-line>Name Expression</div>
       <div mat-line>{{ConvertNameNumberArrayToString(person.CompleteName)}}</div>
+    </mat-list-item>
+
+    <mat-list-item matRipple (click)="openSnackBar('Name Change Comments: ' + IsNameChangeRequired(person).comments)">
+      <mat-icon mat-list-icon>person_pin</mat-icon>
+      <div mat-line>Is Name Change Required?</div>
+      <div mat-line>Click to know more.</div>
+    </mat-list-item>
+
+    <mat-list-item matRipple (click)="openSnackBar('Name Change Comments: ' + changeNameSuggestions(person))">
+      <mat-icon mat-list-icon>person_pin</mat-icon>
+      <div mat-line>Name Change Letters</div>
+      <div mat-line>Click to know more.</div>
     </mat-list-item>
   </mat-list>
 </p>

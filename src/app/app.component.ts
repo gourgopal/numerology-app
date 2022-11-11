@@ -631,7 +631,7 @@ export class AppComponent {
     missingNumbers.forEach(element => {
 
       let cn = this.getComplementaryForMissing(element)
-      .filter(e => availableNumbers.includes(e));
+        .filter(e => availableNumbers.includes(e));
 
       complementaryNumbers.push(
         {
@@ -774,13 +774,99 @@ export class AppComponent {
     });
     return str;
   }
-  
+
   ConvertMissingComplementaryToString(missingComplementary: MissingComplementary[]): string {
     let str = '';
     missingComplementary.forEach(h => {
       str += '{' + h.missingNumber + ' ~ ' + h.complementaryNumber + '}; ';
     });
     return str;
+  }
+
+  IsNameChangeRequired(person: Person): { canChangeTo: number[], comments: string } {
+    const possibleNameChangeNumbers = [5, 6, 1, 3];
+    const avoidNumbers = [4, 8];
+    let canChangeTo: number[] = [];
+
+    const isFriendlyPsychic = this.getRelation(person.Psychic, person.CompleteName[0].FullNumber).includes(RelationType.Friend);
+    const isFriendlyDestiny = this.getRelation(person.Destiny, person.CompleteName[0].FullNumber).includes(RelationType.Friend);
+    const isFivePresent = !person.Missing.includes(5);
+    const isSixPresent = !person.Missing.includes(6);
+    const isThreePresent = !person.Missing.includes(3);
+
+    let comments = 'Name is ' + (isFriendlyPsychic ? 'friendly ' : 'not friendly ') + 'with Psychic.\n';
+    comments += 'Name is ' + (isFriendlyDestiny ? 'friendly ' : 'not friendly ') + 'with Destiny.\n';
+
+    //if 5 is missing, give 5
+    if (possibleNameChangeNumbers.includes(person.CompleteName[0].FullNumber) && isFriendlyPsychic && isFriendlyDestiny) {
+      comments += "NAME CHANGE NOT RECOMMENDED as full name is friendly.\n";
+    }
+    person.CompleteName.forEach(item => {
+      if (avoidNumbers.includes(item.FullNumber)) {
+        comments += item.Name + " includes numbers that should be avoided (4, 8). Recommend Name Change.";
+      }
+    });
+
+    if (person.CompleteName[0].FullNumber !== 5 && !isFivePresent) {
+      canChangeTo.push(5);
+      comments += "NAME CHANGE to 5 if needed.\n";
+    }
+    if (person.CompleteName[0].FullNumber !== 6 && !isSixPresent && (person.Psychic !== 3 && person.Destiny !== 3)) {
+      canChangeTo.push(6);
+      comments += "NAME CHANGE to 6 if needed.\n";
+    }
+    if (person.CompleteName[0].FullNumber !== 3 && !isThreePresent && (person.Psychic !== 6 && person.Destiny !== 6)) {
+      canChangeTo.push(3);
+      comments += "NAME CHANGE to 3 if needed.\n";
+    }
+    if (person.CompleteName[0].FullNumber !== 1 && person.Missing.includes(1) && isFivePresent && isSixPresent && (person.Psychic !== 8 && person.Destiny !== 8)) {
+      canChangeTo.push(1);
+      comments += "NAME CHANGE to 1 if needed.\n";
+    }
+    return { canChangeTo, comments };
+  }
+
+  changeNameSuggestions(person: Person): string {
+    const IsNameChangeRequired = this.IsNameChangeRequired(person);
+    let comments: string = '';
+
+    if (IsNameChangeRequired.canChangeTo.length === 0) {
+      return '[FINAL COMMENT: No name change needed.]';
+    }
+
+    IsNameChangeRequired.canChangeTo.forEach(n => {
+      let diff = n - person.CompleteName[0].FullNumber;
+      comments += '{ =' + n + ': ' + (diff > 0 ? ' [add letters`] ' : ' [remove letters] ');
+      switch (Math.abs(diff)) {
+        case 1:
+          comments += 'a, i, j, q, y';
+          break;
+        case 2:
+          comments += 'b, k, r';
+          break;
+        case 3:
+          comments += 's, c, g, l';
+          break;
+        case 4:
+          comments += 'd, m, t';
+          break;
+        case 5:
+          comments += 'n, e, h, x';
+          break;
+        case 6:
+          comments += 'u, v, w';
+          break;
+        case 7:
+          comments += 'o, z';
+          break;
+        case 8:
+          comments += 'f, p';
+          break;
+      }
+      comments += ' }';
+    });
+
+    return comments;
   }
 }
 
