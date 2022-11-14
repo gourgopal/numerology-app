@@ -133,6 +133,12 @@ interface Person {
   KarmicDebt?: number;
   MasterNumber: number[];
   Repeating: number[];
+  PersonalYears: PersonalYear[];
+}
+
+interface PersonalYear {
+  year: number;
+  personalYear: number;
 }
 
 interface NameNumber {
@@ -314,6 +320,7 @@ export class AppComponent {
       Repeating: this.getRepeatingNumbers(generatedNumbers),
       CompletePlanes: this.getPlanes(generatedNumbers),
       Elements: this.getEarthElements(generatedNumbers),
+      PersonalYears: this.getPersonalYears(dob)
     }
     this.person.Complementary = this.getComplementaryNumbers(this.person.Missing, generatedNumbers);
     this.person.MissingPlanes = this.getMissingPlanes(this.person.Missing);
@@ -399,6 +406,14 @@ export class AppComponent {
 
   getDestinyNumber(dob: Date): number {
     return this.getSingleNumber(dob.getDate() + dob.getMonth() + 1 + dob.getFullYear());
+  }
+
+  getPersonalYears(dob: Date): PersonalYear[] {
+    let personalYears: PersonalYear[] = [];
+    for (let year = dob.getFullYear(); year <= new Date().getFullYear() + 20; ++year) {
+      personalYears.push({ year: year, personalYear: this.getSingleNumber(dob.getDate() + dob.getMonth() + 1 + year) });
+    }
+    return personalYears;
   }
 
   getKuaNumber(dob: Date, gender: Gender): number {
@@ -774,6 +789,14 @@ export class AppComponent {
     });
     return str;
   }
+  
+  ConvertPersonalYearArrayToString(personalYear: PersonalYear[]): string {
+    let str = '';
+    personalYear.forEach(h => {
+      str += h.year + ':' + h.personalYear + '; ';
+    });
+    return str;
+  }
 
   ConvertMissingComplementaryToString(missingComplementary: MissingComplementary[]): string {
     let str = '';
@@ -835,35 +858,36 @@ export class AppComponent {
     }
 
     IsNameChangeRequired.canChangeTo.forEach(n => {
-      let diff = n - person.CompleteName[0].FullNumber;
-      comments += '{ =' + n + ': ' + (diff > 0 ? ' [add letters`] ' : ' [remove letters] ');
-      switch (Math.abs(diff)) {
-        case 1:
-          comments += 'a, i, j, q, y';
-          break;
-        case 2:
-          comments += 'b, k, r';
-          break;
-        case 3:
-          comments += 's, c, g, l';
-          break;
-        case 4:
-          comments += 'd, m, t';
-          break;
-        case 5:
-          comments += 'n, e, h, x';
-          break;
-        case 6:
-          comments += 'u, v, w';
-          break;
-        case 7:
-          comments += 'o, z';
-          break;
-        case 8:
-          comments += 'f, p';
-          break;
-      }
-      comments += ' }';
+      [n - person.CompleteName[0].FullNumber, person.CompleteName[0].FullNumber - n].forEach(diff => {
+        comments += '{ =' + n + ': ' + (diff > 0 ? ' [add letters] ' : ' [remove letters] ');
+        switch (Math.abs(diff)) {
+          case 1:
+            comments += 'a, i, j, q, y';
+            break;
+          case 2:
+            comments += 'b, k, r';
+            break;
+          case 3:
+            comments += 's, c, g, l';
+            break;
+          case 4:
+            comments += 'd, m, t';
+            break;
+          case 5:
+            comments += 'n, e, h, x';
+            break;
+          case 6:
+            comments += 'u, v, w';
+            break;
+          case 7:
+            comments += 'o, z';
+            break;
+          case 8:
+            comments += 'f, p';
+            break;
+        }
+        comments += ' } (OR) ';
+      });
     });
 
     return comments;

@@ -191,5 +191,15 @@
       <div mat-line>Name Change Letters</div>
       <div mat-line>Click to know more.</div>
     </mat-list-item>
+    
+    <mat-divider></mat-divider>
+
+    <div mat-subheader>Predictions</div>
+    <mat-list-item matRipple
+      (click)="openSnackBar('Predictions (Personal Year): ' + ConvertPersonalYearArrayToString(person.PersonalYears))">
+      <mat-icon mat-list-icon>person_outline</mat-icon>
+      <div mat-line>Personal Year</div>
+      <div mat-line>{{ConvertPersonalYearArrayToString(person.PersonalYears)}}</div>
+    </mat-list-item>
   </mat-list>
 </p>
