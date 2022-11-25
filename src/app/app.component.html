@@ -59,6 +59,7 @@
         <h4 class="headline" matTooltip="Planet: {{LuSho.planet}}">{{LuSho.planet}}</h4>
       </mat-grid-tile-header>
       <span class="large-font">{{LuSho.number}}</span>
+      <span class="small-font">{{getNumberInfo(LuSho.number, person)}}</span>
       <mat-grid-tile-footer>
         <h4 class="headline" matTooltip="Element: {{LuSho.earthElement}}">{{LuSho.earthElement}}</h4>
       </mat-grid-tile-footer>
@@ -155,6 +156,37 @@
       <div mat-line *ngIf="person.MasterNumber.length === 0"> No master number </div>
       <div mat-line *ngIf="person.MasterNumber"> {{person.MasterNumber}} </div>
     </mat-list-item>
+    
+    <mat-list-item matRipple (click)="openSnackBar('Success number: ' + person.SuccessNumber)">
+      <mat-icon mat-list-icon>emoji_events</mat-icon>
+      <div mat-line>Success number</div>
+      <div mat-line> {{person.SuccessNumber}} </div>
+    </mat-list-item>
+    
+    <mat-list-item matRipple
+      (click)="openSnackBar(person.LuckyNumbers.length === 0 ? 'No Lucky Number' : 'Lucky Number: ' + person.LuckyNumbers)">
+      <mat-icon mat-list-icon>emoji_emotions</mat-icon>
+      <div mat-line>Lucky Numbers</div>
+      <div mat-line *ngIf="person.LuckyNumbers.length === 0"> No Lucky number </div>
+      <div mat-line *ngIf="person.LuckyNumbers"> {{person.LuckyNumbers}} </div>
+    </mat-list-item>
+
+        
+    <mat-list-item matRipple
+      (click)="openSnackBar(person.UnluckyNumbers.length === 0 ? 'No Unlucky Number' : 'Unlucky Number: ' + person.UnluckyNumbers)">
+      <mat-icon mat-list-icon>error</mat-icon>
+      <div mat-line>Unlucky Numbers</div>
+      <div mat-line *ngIf="person.UnluckyNumbers.length === 0"> No Unlucky number </div>
+      <div mat-line *ngIf="person.UnluckyNumbers"> {{person.UnluckyNumbers}} </div>
+    </mat-list-item>
+        
+    <mat-list-item matRipple
+      (click)="openSnackBar(person.NeutralNumbers.length === 0 ? 'No Neutral Number' : 'Neutral Number: ' + person.NeutralNumbers)">
+      <mat-icon mat-list-icon>nearby_error</mat-icon>
+      <div mat-line>Neutral Numbers</div>
+      <div mat-line *ngIf="person.NeutralNumbers.length === 0"> No Neutral number </div>
+      <div mat-line *ngIf="person.NeutralNumbers"> {{person.NeutralNumbers}} </div>
+    </mat-list-item>
 
     <mat-divider></mat-divider>
 
@@ -191,15 +223,31 @@
       <div mat-line>Name Change Letters</div>
       <div mat-line>Click to know more.</div>
     </mat-list-item>
-    
+
     <mat-divider></mat-divider>
 
     <div mat-subheader>Predictions</div>
+
     <mat-list-item matRipple
       (click)="openSnackBar('Predictions (Personal Year): ' + ConvertPersonalYearArrayToString(person.PersonalYears))">
       <mat-icon mat-list-icon>person_outline</mat-icon>
       <div mat-line>Personal Year</div>
       <div mat-line>{{ConvertPersonalYearArrayToString(person.PersonalYears)}}</div>
     </mat-list-item>
+
+    <mat-list-item matRipple
+      (click)="openSnackBar('Predictions (Marriage Year Possibility): ' + ConvertPersonalYearArrayToString(person.MarriageYears))">
+      <mat-icon mat-list-icon>supervisor_account</mat-icon>
+      <div mat-line>Marriage Year Possibility</div>
+      <div mat-line>{{ConvertPersonalYearArrayToString(person.MarriageYears)}}</div>
+    </mat-list-item>
+    
+    <mat-list-item matRipple
+      (click)="openSnackBar('Predictions (Challenges): ' + ConvertChallengeNumberToString(person.ChallengeNumber))">
+      <mat-icon mat-list-icon>crisis_alert</mat-icon>
+      <div mat-line>Phases of Life (Challenge Numbers)</div>
+      <div mat-line>{{ConvertChallengeNumberToString(person.ChallengeNumber)}}</div>
+    </mat-list-item>
+
   </mat-list>
 </p>

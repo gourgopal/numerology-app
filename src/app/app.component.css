@@ -14,14 +14,18 @@ mat-grid-tile {
     min-width: 15rem;
 }
 
-@media (min-width:600px)  {
+@media (min-width:600px) {
     .mat-grid-list {
         max-width: 50vw;
     }
- }
+}
 
 .large-font {
     font-size: xxx-large;
+}
+
+.small-font {
+    font-size: xx-small;
 }
 
 .mat-grid-tile-footer,

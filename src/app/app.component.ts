@@ -133,12 +133,40 @@ interface Person {
   KarmicDebt?: number;
   MasterNumber: number[];
   Repeating: number[];
+  LuckyNumbers: number[];
+  UnluckyNumbers: number[];
+  NeutralNumbers: number[];
+  ChallengeNumber: ChallengeNumber;
+  SuccessNumber: number;
   PersonalYears: PersonalYear[];
+  MarriageYears: PersonalYear[]
 }
 
 interface PersonalYear {
   year: number;
   personalYear: number;
+}
+
+interface PersonalMonth {
+  year: number;
+  month: number;
+  personalMonth: number;
+}
+
+interface PersonalDay {
+  day: Date;
+  personalDay: number;
+}
+
+interface ChallengeNumber {
+  firstCycle: number;
+  firstCycleAgeUpto: number;
+  secondCycle: number;
+  secondCycleAgeUpto: number;
+  thirdCycle: number;
+  thirdCycleAgeUpto: number;
+  fourthCycle: number;
+  fourthCycleAgeFrom: number;
 }
 
 interface NameNumber {
@@ -320,7 +348,13 @@ export class AppComponent {
       Repeating: this.getRepeatingNumbers(generatedNumbers),
       CompletePlanes: this.getPlanes(generatedNumbers),
       Elements: this.getEarthElements(generatedNumbers),
-      PersonalYears: this.getPersonalYears(dob)
+      PersonalYears: this.getPersonalYears(dob),
+      LuckyNumbers: this.getLuckyNumbers(psychic, destiny),
+      UnluckyNumbers: this.getUnluckyNumbers(psychic, destiny),
+      NeutralNumbers: this.getNeutralNumbers(psychic, destiny),
+      ChallengeNumber: this.getChallengeNumber(dob, destiny),
+      SuccessNumber: this.getSuccessNumber(dob),
+      MarriageYears: this.getMarriagePossibilityYears(dob, psychic)
     }
     this.person.Complementary = this.getComplementaryNumbers(this.person.Missing, generatedNumbers);
     this.person.MissingPlanes = this.getMissingPlanes(this.person.Missing);
@@ -339,6 +373,26 @@ export class AppComponent {
       luShoGrid.push({ id: n, number: numbers[n], color: LuShoGridColorDefinition[n], planet: PlanetDefinition[n], earthElement: EarthElementDefinition[n] });
     });
     return luShoGrid;
+  }
+
+  getNumberInfo(n: string, person: Person): string {
+    if (n === undefined || n.length === 0) {
+      return '';
+    }
+    let comment = '';
+    for (const element of n) {
+      const j = parseInt(element);
+      if (j === person.karmic && !comment.includes(' K ')) {
+        comment += ' K ';
+      }
+      if (j === person.Psychic && !comment.includes(' Psychic ')) {
+        comment += ' Psychic ';
+      }
+      if (j === person.Destiny && !comment.includes(' Destiny ')) {
+        comment += ' Destiny ';
+      }
+    }
+    return comment
   }
 
   getPsychic(dob: Date): number {
@@ -743,7 +797,7 @@ export class AppComponent {
     let relation: RelationType[] = [];
 
     //num1 to num2
-    let relationData = RelationDefinition.filter(e => e.Number === n1)[0];
+    const relationData = RelationDefinition.find(e => e.Number === n1) as Relation;
     if (relationData.Friends.includes(n2)) {
       relation.push(RelationType.Friend as RelationType);
     }
@@ -782,6 +836,70 @@ export class AppComponent {
     return earthElement;
   }
 
+  getChallengeNumber(dob: Date, destiny: number): ChallengeNumber {
+    let challengeNumber: ChallengeNumber = {
+      firstCycle: this.getSingleNumber(dob.getDate() + (dob.getMonth() + 1)),
+      secondCycle: this.getSingleNumber(dob.getDate() + (dob.getFullYear())),
+      thirdCycle: 0,
+      fourthCycle: this.getSingleNumber(dob.getFullYear() + (dob.getMonth() + 1)),
+      firstCycleAgeUpto: 36 - destiny,
+      secondCycleAgeUpto: (36 - destiny) + 9,
+      thirdCycleAgeUpto: (36 - destiny) + 9 + 9,
+      fourthCycleAgeFrom: (36 - destiny) + 9 + 9,
+    };
+    challengeNumber.thirdCycle = challengeNumber.firstCycle + challengeNumber.secondCycle;
+    return challengeNumber;
+  }
+
+  getSuccessNumber(dob: Date): number {
+    return this.getSingleNumber(dob.getDate() + (1 + dob.getMonth()));
+  }
+
+  getLuckyNumbers(psychic: number, destiny: number): number[] {
+    const psychicFriends = (RelationDefinition.find(e => e.Number === psychic) as Relation).Friends;
+    const destinyFriends = (RelationDefinition.find(e => e.Number === destiny) as Relation).Friends;
+    return psychicFriends.filter(x => destinyFriends.includes(x));
+  }
+
+  getUnluckyNumbers(psychic: number, destiny: number): number[] {
+    const psychicEnemies = (RelationDefinition.find(e => e.Number === psychic) as Relation).Enemies;
+    const destinyEnemies = (RelationDefinition.find(e => e.Number === destiny) as Relation).Enemies;
+    return psychicEnemies?.filter(x => destinyEnemies?.includes(x)) ?? [];
+  }
+
+  getNeutralNumbers(psychic: number, destiny: number): number[] {
+    const psychicNeutrals = (RelationDefinition.find(e => e.Number === psychic) as Relation).Neutrals;
+    const destinyNeutrals = (RelationDefinition.find(e => e.Number === destiny) as Relation).Neutrals;
+    return psychicNeutrals.filter(x => destinyNeutrals.includes(x));
+  }
+  
+  getMarriagePossibilityYears(dob: Date, psychic: number): PersonalYear[] {
+    let marriagePossibilityYears: PersonalYear[] = [];
+    const marriageNumbers = this.getMarriageYearNumber(psychic);
+    for (let year = dob.getFullYear() + 18; year <= new Date().getFullYear() + 100; ++year) {
+      const n = this.getSingleNumber(dob.getDate() + dob.getMonth() + 1 + year);
+      if (marriageNumbers.includes(n)) {
+        marriagePossibilityYears.push({ year: year, personalYear: n });
+      }
+    }
+    return marriagePossibilityYears;
+  }
+
+  getMarriageYearNumber(psychic: number): number[] {
+    switch(psychic) {
+      case 1: return [1, 4, 5, 7, 9];
+      case 2: return [1, 2, 5, 6, 8];
+      case 3: return [3, 6, 7, 9];
+      case 4: return [1, 2, 4, 7, 8];
+      case 5: return [2, 3, 5, 7, 9];
+      case 6: return [1, 2, 3, 5, 6, 8];
+      case 7: return [1, 2, 4, 8];
+      case 8: return [1, 2, 4, 6, 8];
+      case 9: return [1, 2, 3, 6, 7];
+      default: return [];
+    }
+  }
+
   ConvertNameNumberArrayToString(nameNumber: NameNumber[]): string {
     let str = '';
     nameNumber.forEach(h => {
@@ -804,6 +922,13 @@ export class AppComponent {
       str += '{' + h.missingNumber + ' ~ ' + h.complementaryNumber + '}; ';
     });
     return str;
+  }
+
+  ConvertChallengeNumberToString(challengeNumber: ChallengeNumber): string {
+    return `Phase 1 (age 0 to ${challengeNumber.firstCycleAgeUpto}): ${challengeNumber.firstCycle}; ` + 
+    `Phase 2 (age ${challengeNumber.firstCycleAgeUpto} to ${challengeNumber.secondCycleAgeUpto}): ${challengeNumber.secondCycle}; ` +
+    `Phase 3 (age ${challengeNumber.secondCycleAgeUpto} to ${challengeNumber.thirdCycleAgeUpto}): ${challengeNumber.thirdCycle}; ` +
+    `Phase 4 (age ${challengeNumber.thirdCycleAgeUpto} onwards): ${challengeNumber.fourthCycle};`;
   }
 
   IsNameChangeRequired(person: Person): { canChangeTo: number[], comments: string } {
