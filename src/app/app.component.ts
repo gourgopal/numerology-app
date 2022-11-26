@@ -2,6 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { jsPDF } from 'jspdf'
 
 interface DropDown {
   displayName: string;
@@ -263,6 +264,7 @@ export class AppComponent {
   }
 
   title: string = 'Numerology App';
+  public static AppName = 'Numerology App';
   defaultDate: Date = new Date('12/31/1996');
   person: Person | undefined;
 
@@ -370,7 +372,7 @@ export class AppComponent {
     });
     let luShoGrid: LuShoGrid[] = [];
     [4, 9, 2, 3, 5, 7, 8, 1, 6].forEach(n => {
-      luShoGrid.push({ id: n, number: numbers[n], color: LuShoGridColorDefinition[n], planet: PlanetDefinition[n], earthElement: EarthElementDefinition[n] });
+      luShoGrid.push({ id: n, number: numbers[n] ?? ' ', color: LuShoGridColorDefinition[n], planet: PlanetDefinition[n], earthElement: EarthElementDefinition[n] });
     });
     return luShoGrid;
   }
@@ -872,7 +874,7 @@ export class AppComponent {
     const destinyNeutrals = (RelationDefinition.find(e => e.Number === destiny) as Relation).Neutrals;
     return psychicNeutrals.filter(x => destinyNeutrals.includes(x));
   }
-  
+
   getMarriagePossibilityYears(dob: Date, psychic: number): PersonalYear[] {
     let marriagePossibilityYears: PersonalYear[] = [];
     const marriageNumbers = this.getMarriageYearNumber(psychic);
@@ -886,7 +888,7 @@ export class AppComponent {
   }
 
   getMarriageYearNumber(psychic: number): number[] {
-    switch(psychic) {
+    switch (psychic) {
       case 1: return [1, 4, 5, 7, 9];
       case 2: return [1, 2, 5, 6, 8];
       case 3: return [3, 6, 7, 9];
@@ -907,7 +909,7 @@ export class AppComponent {
     });
     return str;
   }
-  
+
   ConvertPersonalYearArrayToString(personalYear: PersonalYear[]): string {
     let str = '';
     personalYear.forEach(h => {
@@ -919,16 +921,16 @@ export class AppComponent {
   ConvertMissingComplementaryToString(missingComplementary: MissingComplementary[]): string {
     let str = '';
     missingComplementary.forEach(h => {
-      str += '{' + h.missingNumber + ' ~ ' + h.complementaryNumber + '}; ';
+      str += '{' + h.missingNumber + '‣ ' + h.complementaryNumber + '}; ';
     });
     return str;
   }
 
   ConvertChallengeNumberToString(challengeNumber: ChallengeNumber): string {
-    return `Phase 1 (age 0 to ${challengeNumber.firstCycleAgeUpto}): ${challengeNumber.firstCycle}; ` + 
-    `Phase 2 (age ${challengeNumber.firstCycleAgeUpto} to ${challengeNumber.secondCycleAgeUpto}): ${challengeNumber.secondCycle}; ` +
-    `Phase 3 (age ${challengeNumber.secondCycleAgeUpto} to ${challengeNumber.thirdCycleAgeUpto}): ${challengeNumber.thirdCycle}; ` +
-    `Phase 4 (age ${challengeNumber.thirdCycleAgeUpto} onwards): ${challengeNumber.fourthCycle};`;
+    return `Phase 1 (age 0 to ${challengeNumber.firstCycleAgeUpto}): ${challengeNumber.firstCycle}; ` +
+      `Phase 2 (age ${challengeNumber.firstCycleAgeUpto} to ${challengeNumber.secondCycleAgeUpto}): ${challengeNumber.secondCycle}; ` +
+      `Phase 3 (age ${challengeNumber.secondCycleAgeUpto} to ${challengeNumber.thirdCycleAgeUpto}): ${challengeNumber.thirdCycle}; ` +
+      `Phase 4 (age ${challengeNumber.thirdCycleAgeUpto} onwards): ${challengeNumber.fourthCycle};`;
   }
 
   IsNameChangeRequired(person: Person): { canChangeTo: number[], comments: string } {
@@ -1016,6 +1018,92 @@ export class AppComponent {
     });
 
     return comments;
+  }
+
+  SavePdf(person: Person) {
+    new Report(person).SavePdf();
+  }
+}
+
+export class Report {
+  person: Person;
+  doc: jsPDF = new jsPDF();
+  constructor(person: Person) {
+    this.person = person;
+    this.doc.setDocumentProperties(
+      {
+        creator: `Goura Gopal Dalai via ${AppComponent.AppName}`,
+        author: 'Goura Gopal Dalai',
+        title: `Numerology Report for ${person.Name}`,
+        subject: `Detailed Explanation for ${person.Name} based on Birthday ${person.Birthday}`,
+        keywords: 'Numerology Report'
+      });
+  }
+  SavePdf() {
+    this.doc.setFontSize(22);
+    this.doc.text("Radhe Radhe!", 20, 20);
+    this.doc.setFontSize(16);
+    this.doc.text(`Name: ${this.person.Name} | Gender: ${this.person.Gender}`, 20, 35);
+    this.doc.text(`Birth: ${this.person.Birthday} | Psychic: ${this.person.Psychic} | Destiny: ${this.person.Destiny} | Kua: ${this.person.karmic}`, 20, 45);
+    this.printLuShoGrid();
+    this.printPsychic();
+    this.doc.save(`${this.person.Name}.pdf`);
+  }
+
+  printLuShoGrid(size = 40, x = 40, y = 55) {
+    let doc = this.doc;
+    let luShoGrid = this.person.LuShoGrid;
+    doc.setFontSize(size - (0.2 * size));
+    for (let i = 0; i < 9; i += 3) {
+      doc.setFillColor(luShoGrid[i].color);
+      doc.rect(x, y, size, size, 'F');
+      doc.text(luShoGrid[i].number.padStart(6).padEnd(6), x, y + (0.6 * size));
+
+      doc.setFillColor(luShoGrid[i + 1].color);
+      doc.rect(x + size, y, size, size, 'F');
+      doc.text(luShoGrid[i + 1].number.padStart(6).padEnd(6), x + size, y + (0.6 * size));
+
+      doc.setFillColor(luShoGrid[i + 2].color);
+      doc.rect(x + (size * 2), y, size, size, 'F');
+      doc.text(luShoGrid[i + 2].number.padStart(6).padEnd(6), x + (size * 2), y + (0.6 * size));
+      y += size;
+    }
+  }
+
+  printPsychic(printFromX = 15, printFromY = 190) {
+    let doc = this.doc;
+    let maxLineWidth = 180;
+    const strArr = Data.Psychic(this.person.Psychic);
+    doc.setFontSize(20);
+    doc.text('Personality', printFromX, printFromY);
+    var textLines = doc.setFontSize(15).splitTextToSize('# ' + strArr.join('\r\n# '), maxLineWidth);
+    doc.text(textLines, printFromX, printFromY + 10);
+  }
+}
+
+export class Data {
+  static Psychic(p: number): string[] {
+    switch (p) {
+      case 1:
+        return ['freedom lover', 'strong builds', 'very active', 'capable of doing hard work', 'giver', 'ready to help'];
+      case 2:
+        return ['nature lover', 'kind-hearted, peaceful and gentle', 'imaginative', 'loves music and harmony', 'good in planing but lazy', 'caring'];
+      case 3:
+        return ['very ambitious', 'work best as advisors, teachers and guide.', 'highly professional and disciplined', 'honest, kind', 'creative and motivating by nature', 'interest in social work', 'good leaders and communication skills'];
+      case 4:
+        return ['rebellious by nature and instinctively rebel against rules and regulations', 'loves music, dance and are creative too.', 'cannot say no to anybody', 'helpful and have good convincing power', 'Bold, out of box thinking, neat, tidy and goes in details of everything', 'Sharp mind & very good memory', 'good personality, good leadership and speaking skills'];
+      case 5:
+        return ['quick decision-makers', 'good luck factor in life', 'balanced and emotional stability, they are compassionate, understanding and caring.', 'They are best in communication, can opt for professions like Advocate. They are good as a Writer.', 'They can’t sit ideal, know how to get yes from others, don’t listen much to others.', 'They are persuasive and a salesperson par-excellence.', 'They are adventurous and courageous. They travel a lot. They like to live in foreign lands away from their families, to enjoy life and learn.', 'Strongly built. Intelligent, Witty, good communication skill.'];
+      case 6:
+        return ['family person with good personality.', 'caring for their Children and give them the top priority of their life.', 'They dislike ugliness, dirtiness, mismanagement and disorder.', 'They are best fitted in industries such as cosmetics, glamour, interior designer, media etc.', 'They are magnetic, youthful, gentle, soft-spoken, romantic, luxury-loving, artistic and possessors of refined taste.', 'They attract members of the opposite sex easily and are usually loved and respected by them.', ' lucky enough to get all the luxuries and facilities of modern living-such as a house with a garden, vehicles – before the age of 45', 'secretive by nature'];
+      case 7:
+        return ['Spiritual', 'They are Creative, Unconventional, Moody (having mood swings) and Lazy.', 'They are the best healers and have good intuitive power', 'They may have an obsession and many times they do work without thinking.', 'They are perfectionists, have an interest in meditation. They are not greedy for money and have more interest in Philosophical work.', 'failures in life', 'They are good speakers and have an ability to mobilize public opinion in favour of their arguments; even their opponents have to agree with their points of view.', 'Their personalities have many faces - uncertainty is their specialty.', 'They are restless as they have an over busy mind and hyperactive brain.'];
+      case 8:
+        return ['They can become Judge. They are judgmental and can be best fitted in judiciary.', 'Also good for Banking & Commerce.', 'They are powerful, ambitious and money- conscious number, but are also generous.', 'Number 8 is of confidence and determination. Their willpower and serious nature give them the strength to handle all kinds of projects successfully.', 'They believe their work is their worship and aim at doing big things, in whatever business or job. Follows sincerely what is advised by Guru.', 'Face Many Ups & Down in life. Their lives are unpredictable, unexpected changes keep them busy adjusting to the new circumstances.', 'Can do well in professions like: Import and Export Business, Trading, Scientist, Dentist, Petrochemical, share market, Gamblers, Strategic Planning.'];
+      case 9:
+        return ['strong will-power and determination and do progress on their chosen path.', 'good personality, idealists, courageous, and are ambitious', 'They are Inspirational, Emotional, Aggressive, Stubborn, grounded to the earth. They are highly energetic; Anger is on their nose.', 'humanitarian', 'They are like a coconut- hard on the outside and full of sweet pulp inside, outwardly they are hard, disciplined and unshakeable but inside they are soft and compassionate.', 'Psychic number 9 can do well in professions like: Sports, Police, Defense Services, Army, Surgeons, Administrative Services, Navy-captain.'];
+    }
+    return [];
   }
 }
 

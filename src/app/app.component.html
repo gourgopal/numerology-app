@@ -1,6 +1,9 @@
 <mat-toolbar class="mat-elevation-z4" color="accent">
   <span>{{title}}</span>
   <span class="example-spacer"></span>
+  <button mat-icon-button *ngIf="person" (click)="SavePdf(person)" aria-label="Download PDF Report">
+    <mat-icon>download</mat-icon>
+  </button>
   <a mat-icon-button aria-label="Follow icon-button with heart icon"
     href="https://twitter.com/intent/user?screen_name=ProgrammerGopal" target="_blank">
     <mat-icon>favorite</mat-icon>
@@ -48,7 +51,6 @@
     <button type="submit" mat-raised-button color="accent">Get Report</button>
   </p>
 </form>
-
 <mat-divider></mat-divider>
 
 <p *ngIf="person">
@@ -156,13 +158,13 @@
       <div mat-line *ngIf="person.MasterNumber.length === 0"> No master number </div>
       <div mat-line *ngIf="person.MasterNumber"> {{person.MasterNumber}} </div>
     </mat-list-item>
-    
+
     <mat-list-item matRipple (click)="openSnackBar('Success number: ' + person.SuccessNumber)">
       <mat-icon mat-list-icon>emoji_events</mat-icon>
       <div mat-line>Success number</div>
       <div mat-line> {{person.SuccessNumber}} </div>
     </mat-list-item>
-    
+
     <mat-list-item matRipple
       (click)="openSnackBar(person.LuckyNumbers.length === 0 ? 'No Lucky Number' : 'Lucky Number: ' + person.LuckyNumbers)">
       <mat-icon mat-list-icon>emoji_emotions</mat-icon>
@@ -171,7 +173,7 @@
       <div mat-line *ngIf="person.LuckyNumbers"> {{person.LuckyNumbers}} </div>
     </mat-list-item>
 
-        
+
     <mat-list-item matRipple
       (click)="openSnackBar(person.UnluckyNumbers.length === 0 ? 'No Unlucky Number' : 'Unlucky Number: ' + person.UnluckyNumbers)">
       <mat-icon mat-list-icon>error</mat-icon>
@@ -179,7 +181,7 @@
       <div mat-line *ngIf="person.UnluckyNumbers.length === 0"> No Unlucky number </div>
       <div mat-line *ngIf="person.UnluckyNumbers"> {{person.UnluckyNumbers}} </div>
     </mat-list-item>
-        
+
     <mat-list-item matRipple
       (click)="openSnackBar(person.NeutralNumbers.length === 0 ? 'No Neutral Number' : 'Neutral Number: ' + person.NeutralNumbers)">
       <mat-icon mat-list-icon>nearby_error</mat-icon>
@@ -241,7 +243,7 @@
       <div mat-line>Marriage Year Possibility</div>
       <div mat-line>{{ConvertPersonalYearArrayToString(person.MarriageYears)}}</div>
     </mat-list-item>
-    
+
     <mat-list-item matRipple
       (click)="openSnackBar('Predictions (Challenges): ' + ConvertChallengeNumberToString(person.ChallengeNumber))">
       <mat-icon mat-list-icon>crisis_alert</mat-icon>
